@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:progresspal/components/custom_appbar.dart';
 import 'package:progresspal/components/custom_weekly_calendar.dart';
+import 'package:progresspal/pages/pomodoro_page.dart';
 import 'package:progresspal/providers/streak_provider.dart';
 import 'package:progresspal/providers/track_provider.dart';
 import 'package:provider/provider.dart';
@@ -200,6 +201,14 @@ class HomePage extends StatelessWidget {
                   );
                 },
               ),
+            ),
+            ElevatedButton(
+              onPressed:
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => PomodoroScreen()),
+                  ),
+              child: Text("Pomodoro"),
             ),
           ],
         ),
