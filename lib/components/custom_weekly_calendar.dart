@@ -219,7 +219,6 @@ class CustomWeeklyCalendar extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (context) {
-        print(completedGoals);
         return Container(
           padding: EdgeInsets.all(16),
           child: Column(
@@ -231,9 +230,11 @@ class CustomWeeklyCalendar extends StatelessWidget {
               ),
               SizedBox(height: 10),
               if (completedGoals.isEmpty)
-                Text(
-                  "No goals completed on this day.",
-                  style: TextStyle(fontSize: 16),
+                Expanded(
+                  child: Text(
+                    "No goals completed on this day.",
+                    style: TextStyle(fontSize: 16),
+                  ),
                 )
               else
                 ...completedGoals.map(

@@ -101,9 +101,7 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
               Consumer<StreakProvider>(
                 builder: (context, streakProvider, child) {
                   final streak = streakProvider.streak;
-                  print(
-                    "Current Streak: ${streak.currentStreak}, Highest Streak: ${streak.highestStreak}",
-                  );
+
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Row(

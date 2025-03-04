@@ -140,12 +140,13 @@ class TrackProvider extends ChangeNotifier {
         streakProvider.streak.completedDates.putIfAbsent(today, () => []);
         streakProvider.streak.completedDates[today]!.add(goal);
 
-        // ✅ If today was not the last updated day, increment streak
-        if (streakProvider.streak.lastUpdated != today) {
+        // ✅ If today wasn't already counted as a streak day, update streak
+        if (streakProvider.streak.lastUpdated == null ||
+            streakProvider.streak.lastUpdated != today) {
           streakProvider.updateStreak(goal);
         }
       } else {
-        // ✅ If goal is being unchecked, remove from completedDates
+        // ✅ If goal is being unchecked, remove it from completedDates
         streakProvider.streak.completedDates[today]?.removeWhere(
           (g) => g.title == goal.title,
         );
@@ -154,15 +155,32 @@ class TrackProvider extends ChangeNotifier {
         if (streakProvider.streak.completedDates[today]?.isEmpty ?? true) {
           streakProvider.streak.completedDates.remove(today);
 
-          // ✅ Decrement streak **only if today was the last updated day**
+          // ✅ Only decrement streak if today was the last updated day
           if (streakProvider.streak.lastUpdated == today) {
             streakProvider.decrementStreak();
+
+            // ✅ Find the most recent valid streak date
+            final previousDates =
+                streakProvider.streak.completedDates.keys.toList();
+            previousDates.sort(); // Ensure they're sorted in ascending order
+
+            if (previousDates.isNotEmpty) {
+              streakProvider.streak.lastUpdated = previousDates.last;
+            } else {
+              streakProvider.streak.lastUpdated = null;
+              streakProvider.streak.currentStreak = 0; // Reset streak fully
+            }
           }
         }
       }
 
       // Toggle completion status
       goal.isCompleted = !goal.isCompleted;
+
+      // ✅ Always update lastUpdated when marking a goal as complete
+      if (goal.isCompleted) {
+        streakProvider.streak.lastUpdated = today;
+      }
 
       // Save changes
       track.save();

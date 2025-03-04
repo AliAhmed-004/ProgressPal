@@ -54,12 +54,7 @@ class StreakProvider extends ChangeNotifier {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
 
-    // ✅ Check if today already exists in the map BEFORE adding the goal
-    bool isNewStreakDay = !_streak.completedDates.containsKey(today);
-
-    // Add goal to today's list
-    _streak.completedDates.putIfAbsent(today, () => []);
-    _streak.completedDates[today]!.add(completedGoal);
+    // ✅ Check if today is a new streak day BEFORE adding the goal
 
     if (_streak.lastUpdated != null) {
       final lastDate = DateTime(
@@ -68,15 +63,18 @@ class StreakProvider extends ChangeNotifier {
         _streak.lastUpdated!.day,
       );
 
-      if (today.difference(lastDate).inDays == 1 && isNewStreakDay) {
-        // ✅ Increment streak for consecutive days (only on first goal of the day)
+      if (today.difference(lastDate).inDays == 1) {
+        // ✅ Increment streak for consecutive days (only once per day)
         _streak.currentStreak++;
+
+        // ✅ Update lastUpdated
+        _streak.lastUpdated = today;
       } else if (today.difference(lastDate).inDays > 1) {
         // ✅ Reset streak if there's a gap in days
-        _streak.currentStreak = 1;
+        _streak.currentStreak = 0;
       }
     } else {
-      // ✅ First streak entry
+      // ✅ Ensure first streak entry starts at 1
       _streak.currentStreak = 1;
     }
 
@@ -85,15 +83,9 @@ class StreakProvider extends ChangeNotifier {
       _streak.highestStreak = _streak.currentStreak;
     }
 
-    // ✅ Update lastUpdated
-    _streak.lastUpdated = today;
-
     // ✅ Save changes to Hive
     _streak.save();
     notifyListeners();
-
-    print("Current Streak: ${_streak.currentStreak}");
-    print("Completed Goals: ${_streak.completedDates[today]!}");
   }
 
   void saveStreak() {
