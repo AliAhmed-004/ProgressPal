@@ -135,51 +135,15 @@ class TrackProvider extends ChangeNotifier {
       final now = DateTime.now();
       final today = DateTime(now.year, now.month, now.day);
 
-      if (!goal.isCompleted) {
-        // ✅ If goal is being completed, add it to completedDates
-        streakProvider.streak.completedDates.putIfAbsent(today, () => []);
-        streakProvider.streak.completedDates[today]!.add(goal);
-
-        // ✅ If today wasn't already counted as a streak day, update streak
-        if (streakProvider.streak.lastUpdated == null ||
-            streakProvider.streak.lastUpdated != today) {
-          streakProvider.updateStreak(goal);
-        }
-      } else {
-        // ✅ If goal is being unchecked, remove it from completedDates
-        streakProvider.streak.completedDates[today]?.removeWhere(
-          (g) => g.title == goal.title,
-        );
-
-        // ✅ If all goals for today are unchecked, remove today & decrement streak
-        if (streakProvider.streak.completedDates[today]?.isEmpty ?? true) {
-          streakProvider.streak.completedDates.remove(today);
-
-          // ✅ Only decrement streak if today was the last updated day
-          if (streakProvider.streak.lastUpdated == today) {
-            streakProvider.decrementStreak();
-
-            // ✅ Find the most recent valid streak date
-            final previousDates =
-                streakProvider.streak.completedDates.keys.toList();
-            previousDates.sort(); // Ensure they're sorted in ascending order
-
-            if (previousDates.isNotEmpty) {
-              streakProvider.streak.lastUpdated = previousDates.last;
-            } else {
-              streakProvider.streak.lastUpdated = null;
-              streakProvider.streak.currentStreak = 0; // Reset streak fully
-            }
-          }
-        }
-      }
-
       // Toggle completion status
-      goal.isCompleted = !goal.isCompleted;
+      bool newStatus = !goal.isCompleted;
+      setGoalCompletionStatus(goal, newStatus);
 
-      // ✅ Always update lastUpdated when marking a goal as complete
-      if (goal.isCompleted) {
-        streakProvider.streak.lastUpdated = today;
+      // Update streak
+      if (newStatus) {
+        streakProvider.markGoalCompleted(goal, today);
+      } else {
+        streakProvider.unmarkGoalCompleted(goal, today);
       }
 
       // Save changes
@@ -188,5 +152,10 @@ class TrackProvider extends ChangeNotifier {
       streakProvider.notifyListeners();
       notifyListeners();
     }
+  }
+
+  // Separate method to handle goal state updates
+  void setGoalCompletionStatus(Goal goal, bool isCompleted) {
+    goal.isCompleted = isCompleted;
   }
 }

@@ -33,9 +33,7 @@ class StreakProvider extends ChangeNotifier {
         if (difference > 1) {
           // Reset streak if there has been a gap of more than 1 day
           _streak.currentStreak = 0;
-
-          // Do NOT update `lastUpdated` here. Only reset streak.
-          // Optional: Clear invalid dates if necessary
+          _streak.lastUpdated = today.subtract(const Duration(days: 1));
           _streak.completedDates.removeWhere((date, goals) {
             return date.isAfter(lastDate) && date.isBefore(today);
           });
@@ -86,6 +84,41 @@ class StreakProvider extends ChangeNotifier {
     // ✅ Save changes to Hive
     _streak.save();
     notifyListeners();
+  }
+
+  // Mark a goal as completed
+  void markGoalCompleted(Goal goal, DateTime today) {
+    streak.completedDates.putIfAbsent(today, () => []);
+    streak.completedDates[today]!.add(goal);
+
+    if (streak.lastUpdated == null || streak.lastUpdated != today) {
+      updateStreak(goal);
+    }
+
+    streak.lastUpdated = today;
+  }
+
+  // Unmark a goal as completed
+  void unmarkGoalCompleted(Goal goal, DateTime today) {
+    streak.completedDates[today]?.removeWhere((g) => g.title == goal.title);
+
+    if (streak.completedDates[today]?.isEmpty ?? true) {
+      streak.completedDates.remove(today);
+
+      if (streak.lastUpdated == today) {
+        decrementStreak();
+
+        final previousDates = streak.completedDates.keys.toList();
+        previousDates.sort(); // Ensure they're sorted in ascending order
+
+        if (previousDates.isNotEmpty) {
+          streak.lastUpdated = previousDates.last;
+        } else {
+          streak.lastUpdated = null;
+          streak.currentStreak = 0; // Reset streak fully
+        }
+      }
+    }
   }
 
   void saveStreak() {
