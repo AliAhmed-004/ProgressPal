@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:progresspal/components/custom_appbar.dart';
 import 'package:progresspal/components/custom_weekly_calendar.dart';
 import 'package:progresspal/pages/pomodoro_page.dart';
@@ -17,10 +18,31 @@ class HomePage extends StatelessWidget {
 
     return Scaffold(
       appBar: CustomAppbar(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => showAddTrackDialog(context),
-        child: Icon(Icons.add),
+      floatingActionButton: SpeedDial(
+        animatedIcon: AnimatedIcons.menu_close,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        overlayColor: Colors.black,
+        overlayOpacity: 0.3,
+        spacing: 10,
+        children: [
+          SpeedDialChild(
+            child: Icon(Icons.add_rounded),
+            onTap: () => showAddTrackDialog(context),
+          ),
+          SpeedDialChild(
+            child: Icon(Icons.timer_rounded),
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => PomodoroScreen()),
+                ),
+          ),
+        ],
       ),
+      //FloatingActionButton(
+      //  onPressed: () => showAddTrackDialog(context),
+      //  child: Icon(Icons.add),
+      //),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -201,14 +223,6 @@ class HomePage extends StatelessWidget {
                   );
                 },
               ),
-            ),
-            ElevatedButton(
-              onPressed:
-                  () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => PomodoroScreen()),
-                  ),
-              child: Text("Pomodoro"),
             ),
           ],
         ),
