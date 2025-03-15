@@ -28,8 +28,10 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
 
   void _startTimer() {
     setState(() {
-      _remainingTime = _selectedDuration;
-      _timerStarted = true;
+      if (!_timerStarted) {
+        _remainingTime = _selectedDuration; // Only set this when starting fresh
+        _timerStarted = true;
+      }
       _isRunning = true;
     });
 
@@ -59,7 +61,7 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
 
   final AudioPlayer _audioPlayer = AudioPlayer(); // Audio player instance
   void _onTimerComplete() async {
-    if (await Vibration.hasVibrator() ?? false) {
+    if (await Vibration.hasVibrator()) {
       Vibration.vibrate(pattern: [500, 1000], repeat: 0);
     }
 
