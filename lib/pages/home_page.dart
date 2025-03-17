@@ -1,14 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:progresspal/components/custom_appbar.dart';
 import 'package:progresspal/components/custom_weekly_calendar.dart';
 import 'package:progresspal/pages/pomodoro_page.dart';
 import 'package:progresspal/providers/streak_provider.dart';
 import 'package:progresspal/providers/track_provider.dart';
+import 'package:progresspal/services/ad_service.dart';
 import 'package:provider/provider.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  BannerAd? _bannerAd;
+
+  @override
+  void initState() {
+    super.initState();
+    _bannerAd = BannerAd(
+      size: AdSize.banner,
+      //TODO: Replace with actual Ad ID
+      adUnitId:
+          "ca-app-pub-3940256099942544/6300978111", // Test banner ad unit ID //AdService.bannerAdUnitId,
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          print("Ad Loaded!");
+          setState(() {
+            _bannerAd = ad as BannerAd;
+          });
+        },
+
+        onAdFailedToLoad: (ad, error) {
+          print("Failed to load ad: ${error.code} - ${error.message}");
+          ad.dispose();
+        },
+      ),
+
+      request: AdRequest(),
+    )..load();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,14 +74,18 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
-      //FloatingActionButton(
-      //  onPressed: () => showAddTrackDialog(context),
-      //  child: Icon(Icons.add),
-      //),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            // Testing Ads
+            if (_bannerAd != null)
+              SizedBox(
+                width: _bannerAd!.size.width.toDouble(),
+                height: _bannerAd!.size.height.toDouble(),
+                child: AdWidget(ad: _bannerAd!),
+              ),
+
             // Weekly Calendar
             CustomWeeklyCalendar(),
 

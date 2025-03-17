@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:progresspal/services/hive_database.dart';
 import 'package:progresspal/themes/themes.dart';
@@ -11,6 +12,7 @@ import 'providers/streak_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  MobileAds.instance.initialize();
   runApp(const ProgressPal());
 }
 
@@ -66,4 +68,3 @@ class _ProgressPalState extends State<ProgressPal> {
     );
   }
 }
-
