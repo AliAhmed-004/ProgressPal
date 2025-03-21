@@ -26,7 +26,8 @@ class _HomePageState extends State<HomePage> {
       size: AdSize.banner,
       //TODO: Replace with actual Ad ID
       adUnitId:
-          "ca-app-pub-3940256099942544/6300978111", // Test banner ad unit ID //AdService.bannerAdUnitId,
+          "ca-app-pub-3940256099942544/6300978111", // Test banner ad unit ID
+      //AdService.bannerAdUnitId,
       listener: BannerAdListener(
         onAdLoaded: (ad) {
           print("Ad Loaded!");
