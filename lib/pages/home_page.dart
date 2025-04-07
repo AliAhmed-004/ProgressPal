@@ -1,13 +1,19 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:progresspal/components/custom_appbar.dart';
 import 'package:progresspal/components/custom_weekly_calendar.dart';
+import 'package:progresspal/gemini/gemini_helper.dart';
+import 'package:progresspal/models/track_entry.dart';
 import 'package:progresspal/pages/pomodoro_page.dart';
 import 'package:progresspal/providers/streak_provider.dart';
 import 'package:progresspal/providers/track_provider.dart';
 import 'package:progresspal/services/ad_service.dart';
 import 'package:provider/provider.dart';
+
+import '../models/goal.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -296,6 +302,12 @@ class _HomePageState extends State<HomePage> {
                   },
                   child: Text('Add'),
                 ),
+                TextButton(
+                  onPressed: () {
+                    showGeneratedGoals();
+                  },
+                  child: Text('Generate Goals'),
+                ),
               ],
             );
           },
@@ -344,10 +356,6 @@ class _HomePageState extends State<HomePage> {
                     descriptionController.text,
                     streakProvider,
                   );
-
-                  // Update the streak
-                  //Provider.of<StreakProvider>(context, listen: false)
-                  //    .updateStreak();
 
                   Navigator.pop(context);
 
@@ -400,5 +408,94 @@ class _HomePageState extends State<HomePage> {
         );
       },
     );
+  }
+
+  void showGeneratedGoals() async {
+    GeminiGoalGenerator goalGenerator = GeminiGoalGenerator();
+
+    TrackEntry currentTrack =
+        Provider.of<TrackProvider>(context, listen: false).selectedTrack;
+    List<String> existingGoals =
+        currentTrack.goals.map((goal) => goal.title).toList();
+
+    // Close the 'Add Goal' dialog
+    Navigator.pop(context);
+
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (_) => const AlertDialog(
+            content: Row(
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(width: 16),
+                Text("Generating goals..."),
+              ],
+            ),
+          ),
+    );
+
+    try {
+      List<String> goals = await goalGenerator.generateGoals(
+        currentTrack.title,
+        existingGoals,
+      );
+
+      // Close loading dialog
+      Navigator.pop(context);
+
+      // Show results
+      showDialog(
+        context: context,
+        builder:
+            (_) => AlertDialog(
+              title: Text('Generated Goals'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children:
+                    goals.map((g) {
+                      return Row(
+                        children: [
+                          Expanded(child: Text("• $g")),
+                          IconButton(
+                            onPressed: () {
+                              // Optional: remove from preview list if you want
+                            },
+                            icon: Icon(Icons.delete),
+                          ),
+                        ],
+                      );
+                    }).toList(),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    // Add goals to track here
+                  },
+                  child: Text("Add to Track"),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text("Cancel"),
+                ),
+              ],
+            ),
+      );
+    } on SocketException catch (_) {
+      Navigator.pop(context); // Close loading
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("No internet connection. Please check your Wi-Fi."),
+        ),
+      );
+    } catch (e) {
+      Navigator.pop(context); // Close loading dialog
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Failed to generate goals: $e")));
+    }
   }
 }
