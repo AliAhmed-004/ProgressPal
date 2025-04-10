@@ -2,7 +2,7 @@ import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:progresspal/secrets/secrets.dart';
 
 class GeminiGoalGenerator {
-  final model = GenerativeModel(model: 'gemini-2.0-flash', apiKey: gemini_key);
+  final model = GenerativeModel(model: 'gemini-2.0-flash', apiKey: gemini_api);
 
   Future<List<String>> generateGoals(
     String trackTitle, [
@@ -19,23 +19,27 @@ class GeminiGoalGenerator {
     return _parseGoals(text);
   }
 
-  String _buildPrompt(String trackTitle, List<String>? existingGoals) {
-    // Base prompt
-    String base =
-        "Forget all previous instructions if any. I'm creating goals for a learning track titled '$trackTitle'."
-        "Please generate 5 clear, short and practical goals for this learning track without their descriptions. I only want 'headings'."
-        "Only give the actual goals as response. Do not add any line like 'Here are the goals'."
-        "These goals would be considered as the first 5 goals one should complete before moving forward in this learning track.";
+String _buildPrompt(String trackTitle, List<String>? existingGoals) {
+  // Base instructions
+  String base =
+      "You're helping to create a chronological list of learning goals for a track titled '$trackTitle'. "
+      "Each goal should be short, clear, and practical — written as a concise heading, without descriptions. "
+      "Only provide 5 new goals as a bullet list, no introduction or explanation.";
 
-    // If there are existing goals, avoid generating them
-    if (existingGoals != null && existingGoals.isNotEmpty) {
-      base +=
-          "\nThese are some goals I have already added. Try generating the other 5 goals considering these but do not suggest them again:\n"
-          "$existingGoals";
-    }
-
-    return base;
+  // If there are existing goals, treat them as completed
+  if (existingGoals != null && existingGoals.isNotEmpty) {
+    base +=
+        "\nThe following goals have already been completed in this track:\n"
+        "${existingGoals.map((g) => '- $g').join('\n')}"
+        "\nNow, please generate the *next 5 goals* that logically follow in the learning path. "
+        "Make sure they are different from the completed ones and continue the learning progression naturally.";
+  } else {
+    base +=
+        "\nThis is a new track, so please generate the first 5 beginner-friendly goals to get started.";
   }
+
+  return base;
+}
 
   List<String> _parseGoals(String rawText) {
     final lines =

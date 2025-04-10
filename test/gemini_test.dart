@@ -6,9 +6,9 @@ void main() async {
 
   final generator = GeminiGoalGenerator();
 
-  final goals = await generator.generateGoals("poop", [
-    'go to bathroom',
-    'sit down',
+  final goals = await generator.generateGoals("Learn React Native", [
+    //'go to bathroom',
+    //'sit down',
   ]);
 
   print("Generated goals:");

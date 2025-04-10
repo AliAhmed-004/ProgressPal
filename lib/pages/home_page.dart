@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:progresspal/components/custom_appbar.dart';
 import 'package:progresspal/components/custom_weekly_calendar.dart';
@@ -491,11 +492,26 @@ class _HomePageState extends State<HomePage> {
           content: Text("No internet connection. Please check your Wi-Fi."),
         ),
       );
+    } on GenerativeAIException catch (e) {
+      Navigator.pop(context); // Close loading dialog
+      if (e.message.contains('503')) {
+        _showError(
+          "The AI model is currently overloaded. Please try again in a few moments.",
+        );
+      } else {
+        _showError("AI generation failed: ${e.message}");
+      }
     } catch (e) {
       Navigator.pop(context); // Close loading dialog
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("Failed to generate goals: $e")));
     }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 }
