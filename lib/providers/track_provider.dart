@@ -68,7 +68,7 @@ class TrackProvider extends ChangeNotifier {
                 ),
   );
 
-  // Add new Track:
+  // Add new progress entry:
   Future<String> addTrack(String title) async {
     // Create the Progress Entry
     final entry = TrackEntry(
