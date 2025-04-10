@@ -26,32 +26,44 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   BannerAd? _bannerAd;
+  bool _isAdLoaded = false;
 
   @override
   void initState() {
     super.initState();
+    _loadBannerAd();
+  }
+
+  // Load the banner ad
+  void _loadBannerAd() {
     _bannerAd = BannerAd(
-      size: AdSize.banner,
-      //TODO: Replace with actual Ad ID
+      //TODO Replace with actual ad id
       adUnitId:
           "ca-app-pub-3940256099942544/6300978111", // Test banner ad unit ID
-      //AdService.bannerAdUnitId,
+      size: AdSize.banner,
+      request: AdRequest(),
       listener: BannerAdListener(
         onAdLoaded: (ad) {
           print("Ad Loaded!");
           setState(() {
-            _bannerAd = ad as BannerAd;
+            _isAdLoaded = true; // Set the ad loaded state
           });
         },
-
         onAdFailedToLoad: (ad, error) {
           print("Failed to load ad: ${error.code} - ${error.message}");
           ad.dispose();
+          setState(() {
+            _isAdLoaded = false; // Set the ad loaded state to false
+          });
         },
       ),
-
-      request: AdRequest(),
     )..load();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _bannerAd?.dispose(); // Dispose of the ad when the widget is disposed
   }
 
   @override
@@ -87,14 +99,6 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Testing Ads
-            if (_bannerAd != null)
-              SizedBox(
-                width: _bannerAd!.size.width.toDouble(),
-                height: _bannerAd!.size.height.toDouble(),
-                child: AdWidget(ad: _bannerAd!),
-              ),
-
             // Weekly Calendar
             CustomWeeklyCalendar(),
 
@@ -272,6 +276,11 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
             ),
+            if (_isAdLoaded)
+              SizedBox(
+                height: _bannerAd!.size.height.toDouble(),
+                child: AdWidget(ad: _bannerAd!),
+              ),
           ],
         ),
       ),
