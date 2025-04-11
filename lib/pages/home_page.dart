@@ -10,6 +10,7 @@ import 'package:progresspal/components/generated_goals_dialog.dart';
 import 'package:progresspal/gemini/gemini_helper.dart';
 import 'package:progresspal/models/track_entry.dart';
 import 'package:progresspal/pages/pomodoro_page.dart';
+import 'package:progresspal/pages/testing_page.dart';
 import 'package:progresspal/providers/streak_provider.dart';
 import 'package:progresspal/providers/track_provider.dart';
 import 'package:progresspal/services/ad_service.dart';
@@ -81,6 +82,14 @@ class _HomePageState extends State<HomePage> {
         overlayOpacity: 0.3,
         spacing: 10,
         children: [
+          SpeedDialChild(
+            child: Icon(Icons.bolt),
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const TestingPage()),
+                ),
+          ),
           SpeedDialChild(
             child: Icon(Icons.add_rounded),
             onTap: () => showAddTrackDialog(context),

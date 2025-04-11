@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:progresspal/services/hive_database.dart';
+import 'package:progresspal/services/noti_service.dart';
 import 'package:progresspal/themes/themes.dart';
 import 'package:provider/provider.dart';
 
@@ -12,7 +13,13 @@ import 'providers/streak_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Related to Ads
   MobileAds.instance.initialize();
+
+  // Related to Notifications
+  NotiService().initNotification();
+  await NotiService().requestPermissions();
   runApp(const ProgressPal());
 }
 
