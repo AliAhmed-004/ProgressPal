@@ -18,6 +18,10 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
             children: [
               // PopupMenuButton for selecting a track
               PopupMenuButton<String>(
+                color: Theme.of(context).colorScheme.surface,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 onSelected: (String newId) {
                   provider.selectTrack(newId);
                 },
@@ -26,6 +30,7 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
                     return PopupMenuItem<String>(
                       value: track.id,
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(track.title),
 
