@@ -56,6 +56,16 @@ class NotiService {
     );
   }
 
+  Future<void> sendNotiNow() async {
+    await notificationsPlugin.show(
+      2,
+      'Now',
+      'Testing Now',
+      notificationDetails(),
+      payload: null,
+    );
+  }
+
   // Schedule Notification
   Future<void> scheduleNotification({
     int id = 1,
@@ -79,10 +89,11 @@ class NotiService {
           UILocalNotificationDateInterpretation.absoluteTime,
 
       // Android Specific
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
 
       // Make Notifications Repeat
-      matchDateTimeComponents: DateTimeComponents.time,
+      // matchDateTimeComponents: DateTimeComponents.time,
+      payload: null,
     );
     print("Scheduling at: ${scheduledDate.toLocal()}");
   }

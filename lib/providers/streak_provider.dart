@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:progresspal/models/streak_model.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 import '../models/goal.dart';
 import '../services/hive_database.dart';
+import '../services/noti_service.dart';
 
 class StreakProvider extends ChangeNotifier {
   StreakModel _streak = StreakModel();
@@ -96,6 +98,29 @@ class StreakProvider extends ChangeNotifier {
     }
 
     streak.lastUpdated = today;
+
+    // cancel notifications for today
+    NotiService().cancelAllNotifications();
+
+    // Schedule tomorrow's reminder (if streak is still > 0)
+    if (streak.currentStreak > 0) {
+      final tomorrow = tz.TZDateTime.now(tz.local).add(Duration(days: 1));
+      final scheduledDate = tz.TZDateTime(
+        tz.local,
+        tomorrow.year,
+        tomorrow.month,
+        tomorrow.day,
+        19, // 7 PM
+        0,
+      );
+
+      NotiService().scheduleNotification(
+        title: 'Keep it going!',
+        body:
+            'Don’t forget to complete a goal today to keep your streak alive 🔥',
+        scheduledDate: scheduledDate,
+      );
+    }
   }
 
   // Unmark a goal as completed
@@ -131,5 +156,32 @@ class StreakProvider extends ChangeNotifier {
       saveStreak();
       notifyListeners();
     }
+  }
+
+  void checkAndScheduleStreakNotification() {
+    if (!hasCompletedGoalsToday() && _streak.currentStreak > 0) {
+      final now = tz.TZDateTime.now(tz.local);
+      final scheduledDate = tz.TZDateTime(
+        tz.local,
+        now.year,
+        now.month,
+        now.day,
+        19, // 7 PM
+        0,
+      );
+
+      NotiService().scheduleNotification(
+        title: 'Your streak is in danger!',
+        body: 'Complete a goal to improve and keep the streak alive!',
+        scheduledDate: scheduledDate,
+      );
+    }
+  }
+
+  bool hasCompletedGoalsToday() {
+    final today = DateTime.now();
+    final todayDate = DateTime(today.year, today.month, today.day);
+    final goalsToday = _streak.completedDates[todayDate];
+    return goalsToday != null && goalsToday.isNotEmpty;
   }
 }

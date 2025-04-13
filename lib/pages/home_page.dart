@@ -33,6 +33,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _loadBannerAd();
+    _scheduleReminders();
   }
 
   // Load the banner ad
@@ -59,6 +60,16 @@ class _HomePageState extends State<HomePage> {
         },
       ),
     )..load();
+  }
+
+  // check and schedule the reminders
+  void _scheduleReminders() {
+    final streakProvider = Provider.of<StreakProvider>(context, listen: false);
+
+    if (!streakProvider.hasCompletedGoalsToday() &&
+        streakProvider.streak.currentStreak > 0) {
+      streakProvider.checkAndScheduleStreakNotification();
+    }
   }
 
   @override

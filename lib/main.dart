@@ -14,12 +14,13 @@ import 'providers/streak_provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Related to Ads
-  MobileAds.instance.initialize();
-
   // Related to Notifications
   NotiService().initNotification();
   await NotiService().requestPermissions();
+
+  // Related to Ads
+  MobileAds.instance.initialize();
+
   runApp(const ProgressPal());
 }
 
