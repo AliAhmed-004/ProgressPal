@@ -1,6 +1,9 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:progresspal/firebase_options.dart';
+import 'package:progresspal/services/firebase_service.dart';
 import 'package:progresspal/services/hive_database.dart';
 import 'package:progresspal/services/noti_service.dart';
 import 'package:progresspal/themes/themes.dart';
@@ -21,6 +24,8 @@ void main() async {
   // Related to Ads
   MobileAds.instance.initialize();
 
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await FirebaseService().initNotifications();
   runApp(const ProgressPal());
 }
 
