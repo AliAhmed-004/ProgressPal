@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -14,6 +15,20 @@ import 'pages/home_page.dart';
 import 'providers/track_provider.dart';
 import 'providers/streak_provider.dart';
 
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  final notiService = NotiService();
+  await notiService.initNotification();
+
+  final notification = message.notification;
+  if (notification != null) {
+    await notiService.showCustomNotification(
+      title: notification.title ?? 'No Title',
+      body: notification.body ?? 'No Body',
+    );
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -26,6 +41,9 @@ void main() async {
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FirebaseService().initNotifications();
+
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
   runApp(const ProgressPal());
 }
 

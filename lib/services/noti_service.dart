@@ -66,6 +66,19 @@ class NotiService {
     );
   }
 
+  Future<void> showCustomNotification({
+    required String title,
+    required String body,
+  }) async {
+    await notificationsPlugin.show(
+      100, // Any unique ID
+      title,
+      body,
+      notificationDetails(),
+      payload: null,
+    );
+  }
+
   // Schedule Notification
   Future<void> scheduleNotification({
     int id = 1,
