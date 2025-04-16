@@ -86,34 +86,39 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: CustomAppbar(),
-      floatingActionButton: SpeedDial(
-        animatedIcon: AnimatedIcons.menu_close,
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        overlayColor: Colors.black,
-        overlayOpacity: 0.3,
-        spacing: 10,
-        children: [
-          SpeedDialChild(
-            child: Icon(Icons.bolt),
-            onTap:
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const TestingPage()),
-                ),
-          ),
-          SpeedDialChild(
-            child: Icon(Icons.add_rounded),
-            onTap: () => showAddTrackDialog(context),
-          ),
-          SpeedDialChild(
-            child: Icon(Icons.timer_rounded),
-            onTap:
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => PomodoroScreen()),
-                ),
-          ),
-        ],
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 35.0),
+        child: SpeedDial(
+          animatedIcon: AnimatedIcons.menu_close,
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          overlayColor: Colors.black,
+          overlayOpacity: 0.3,
+          spacing: 10,
+          children: [
+            SpeedDialChild(
+              child: Icon(Icons.bolt),
+              onTap:
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const TestingPage(),
+                    ),
+                  ),
+            ),
+            SpeedDialChild(
+              child: Icon(Icons.add_rounded),
+              onTap: () => showAddTrackDialog(context),
+            ),
+            SpeedDialChild(
+              child: Icon(Icons.timer_rounded),
+              onTap:
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => PomodoroScreen()),
+                  ),
+            ),
+          ],
+        ),
       ),
       body: SafeArea(
         child: Column(

@@ -1,4 +1,7 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:progresspal/providers/streak_provider.dart';
+import 'package:progresspal/services/streak_checker.dart';
+import 'package:provider/provider.dart';
 import 'noti_service.dart'; // Your NotiService file
 
 class FirebaseService {
@@ -15,13 +18,18 @@ class FirebaseService {
     print("FCM Token: $fcmToken");
 
     // Handle messages when the app is in the foreground
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      final notification = message.notification;
-      if (notification != null) {
-        _notiService.showCustomNotification(
-          title: notification.title ?? 'No Title',
-          body: notification.body ?? 'No Body',
-        );
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+      final hasCompletedGoalToday =
+          await StreakChecker().hasCompletedGoalsTodayFromHive();
+
+      if (!hasCompletedGoalToday) {
+        final notification = message.notification;
+        if (notification != null) {
+          _notiService.showCustomNotification(
+            title: notification.title ?? 'No Title',
+            body: notification.body ?? 'No Body',
+          );
+        }
       }
     });
 
