@@ -68,11 +68,12 @@ class NotiService {
   }
 
   Future<void> showCustomNotification({
+    required int id,
     required String title,
     required String body,
   }) async {
     await notificationsPlugin.show(
-      100, // Any unique ID
+      id, // Any unique ID
       title,
       body,
       notificationDetails(),

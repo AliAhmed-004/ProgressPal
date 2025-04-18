@@ -24,6 +24,7 @@ class FirebaseService {
         final notification = message.notification;
         if (notification != null) {
           _notiService.showCustomNotification(
+            id: 100,
             title: notification.title ?? 'No Title',
             body: notification.body ?? 'No Body',
           );

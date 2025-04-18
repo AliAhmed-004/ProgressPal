@@ -14,6 +14,7 @@ import 'models/streak_model.dart';
 import 'pages/home_page.dart';
 import 'providers/track_provider.dart';
 import 'providers/streak_provider.dart';
+import 'services/streak_checker.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
@@ -21,11 +22,27 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await notiService.initNotification();
 
   final notification = message.notification;
+  final title = notification?.title ?? '';
+
   if (notification != null) {
-    await notiService.showCustomNotification(
-      title: notification.title ?? 'No Title',
-      body: notification.body ?? 'No Body',
-    );
+    if (title.contains('Your streak is in danger!')) {
+      final hasCompletedGoalToday =
+          await StreakChecker().hasCompletedGoalsTodayFromHive();
+
+      if (!hasCompletedGoalToday) {
+        await notiService.showCustomNotification(
+          id: 100,
+          title: title,
+          body: notification.body ?? '',
+        );
+      }
+    } else {
+      await notiService.showCustomNotification(
+        id: 101,
+        title: title,
+        body: notification.body ?? '',
+      );
+    }
   }
 }
 
