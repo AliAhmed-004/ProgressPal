@@ -1,7 +1,5 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:progresspal/providers/streak_provider.dart';
 import 'package:progresspal/services/streak_checker.dart';
-import 'package:provider/provider.dart';
 import 'noti_service.dart'; // Your NotiService file
 
 class FirebaseService {

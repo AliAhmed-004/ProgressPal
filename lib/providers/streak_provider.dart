@@ -170,11 +170,13 @@ class StreakProvider extends ChangeNotifier {
         0,
       );
 
-      NotiService().scheduleNotification(
-        title: 'Your streak is in danger!',
-        body: 'Complete a goal to improve and keep the streak alive!',
-        scheduledDate: scheduledDate,
-      );
+      if (scheduledDate.isAfter(now)) {
+        NotiService().scheduleNotification(
+          title: 'Your streak is in danger!',
+          body: 'Complete a goal to improve and keep the streak alive!',
+          scheduledDate: scheduledDate,
+        );
+      }
     }
   }
 

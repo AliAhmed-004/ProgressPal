@@ -50,7 +50,8 @@ class NotiService {
         'Daily Reminder',
         channelDescription: 'Reminds about completing the goals',
         importance: Importance.max,
-        priority: Priority.high,
+        priority: Priority.max,
+        icon: '@drawable/notification_icon',
       ),
       iOS: DarwinNotificationDetails(),
     );
