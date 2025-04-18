@@ -25,7 +25,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   final title = notification?.title ?? '';
 
   if (notification != null) {
-    if (title.contains('Your streak is in danger!')) {
+    if (title.contains('Stay on top of your game!')) {
       final hasCompletedGoalToday =
           await StreakChecker().hasCompletedGoalsTodayFromHive();
 
