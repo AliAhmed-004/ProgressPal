@@ -1,21 +1,21 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:progresspal/firebase_options.dart';
-import 'package:progresspal/services/firebase_service.dart';
-import 'package:progresspal/services/hive_database.dart';
-import 'package:progresspal/services/noti_service.dart';
-import 'package:progresspal/themes/themes.dart';
-import 'package:provider/provider.dart';
 
-import 'models/streak_model.dart';
+import 'firebase_options.dart';
 import 'pages/home_page.dart';
-import 'providers/track_provider.dart';
 import 'providers/streak_provider.dart';
+import 'providers/theme_provider.dart';
+import 'providers/track_provider.dart';
+import 'services/firebase_service.dart';
+import 'services/hive_database.dart';
+import 'services/noti_service.dart';
 import 'services/streak_checker.dart';
+import 'themes/themes.dart';
 
+// Background notification handler
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   final notiService = NotiService();
@@ -25,20 +25,13 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   final title = notification?.title ?? '';
 
   if (notification != null) {
-    if (title.contains('Stay on top of your game!')) {
-      final hasCompletedGoalToday =
-          await StreakChecker().hasCompletedGoalsTodayFromHive();
+    final isReminder = title.contains('Stay on top of your game!');
+    final hasCompletedGoal =
+        await StreakChecker().hasCompletedGoalsTodayFromHive();
 
-      if (!hasCompletedGoalToday) {
-        await notiService.showCustomNotification(
-          id: 100,
-          title: title,
-          body: notification.body ?? '',
-        );
-      }
-    } else {
+    if (!hasCompletedGoal || !isReminder) {
       await notiService.showCustomNotification(
-        id: 101,
+        id: isReminder ? 100 : 101,
         title: title,
         body: notification.body ?? '',
       );
@@ -49,19 +42,21 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Related to Notifications
-  NotiService().initNotification();
+  // Init services
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await HiveDatabase().initHive();
   await NotiService().requestPermissions();
-
-  // Related to Ads
+  NotiService().initNotification();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  await FirebaseService().initNotifications();
   MobileAds.instance.initialize();
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await FirebaseService().initNotifications();
-
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-  runApp(const ProgressPal());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ThemeProvider(),
+      child: const ProgressPal(),
+    ),
+  );
 }
 
 class ProgressPal extends StatefulWidget {
@@ -73,7 +68,6 @@ class ProgressPal extends StatefulWidget {
 
 class _ProgressPalState extends State<ProgressPal> {
   bool _isLoading = true;
-  late Box<StreakModel> streakBox;
 
   @override
   void initState() {
@@ -82,37 +76,41 @@ class _ProgressPalState extends State<ProgressPal> {
   }
 
   Future<void> _initializeApp() async {
-    await HiveDatabase().initHive(); // Initialize Hive and open boxes
-
-    setState(() {
-      _isLoading = false; // Set loading to false once initialization is done
-    });
+    // Already initialized Hive in main(), so just simulate a short delay if needed
+    await Future.delayed(const Duration(milliseconds: 100));
+    setState(() => _isLoading = false);
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      // Show a loading screen while initializing
-      return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData.dark(),
-        home: Scaffold(body: Center(child: CircularProgressIndicator())),
-      );
-    }
+    final themeProvider = context.watch<ThemeProvider>();
 
-    // Once loading is complete, show the actual app with multiple providers
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => TrackProvider()..loadEntries()),
-        ChangeNotifierProvider(create: (_) => StreakProvider()..loadStreak()),
-      ],
-      child: MaterialApp(
-        theme: AppThemes.lightTheme,
-        darkTheme: AppThemes.darkTheme,
-        themeMode: ThemeMode.system,
-        debugShowCheckedModeBanner: false,
-        home: HomePage(),
-      ),
-    );
+    return _isLoading
+        ? MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: AppThemes.lightTheme,
+          darkTheme: AppThemes.darkTheme,
+          themeMode: themeProvider.currentTheme,
+          home: const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          ),
+        )
+        : MultiProvider(
+          providers: [
+            ChangeNotifierProvider(
+              create: (_) => TrackProvider()..loadEntries(),
+            ),
+            ChangeNotifierProvider(
+              create: (_) => StreakProvider()..loadStreak(),
+            ),
+          ],
+          child: MaterialApp(
+            debugShowCheckedModeBanner: false,
+            theme: AppThemes.lightTheme,
+            darkTheme: AppThemes.darkTheme,
+            themeMode: themeProvider.currentTheme,
+            home: const HomePage(),
+          ),
+        );
   }
 }

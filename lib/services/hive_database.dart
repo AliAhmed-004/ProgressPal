@@ -7,6 +7,7 @@ import '../models/track_entry.dart';
 class HiveDatabase {
   static const String trackBoxName = 'trackBox';
   static const String streakBoxName = 'streakBox';
+  static const String settingsBoxName = 'settings';
 
   // Initializes Hive, registers adapters, and opens boxes
   Future<void> initHive() async {
@@ -20,6 +21,7 @@ class HiveDatabase {
     // Open Boxes
     await Hive.openBox<TrackEntry>(trackBoxName);
     await Hive.openBox<StreakModel>(streakBoxName);
+    await Hive.openBox(settingsBoxName);
 
     _ensureDefaultTrack();
   }
