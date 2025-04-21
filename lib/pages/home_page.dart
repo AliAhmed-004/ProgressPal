@@ -116,66 +116,7 @@ class _HomePageState extends State<HomePage> {
             CustomWeeklyCalendar(),
 
             // Circular Progress Indicator
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        width: 80,
-                        height: 80,
-                        child: Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            TweenAnimationBuilder<double>(
-                              tween: Tween<double>(
-                                begin: 0,
-                                end: track.completionPercentage / 100,
-                              ),
-                              duration: Duration(
-                                milliseconds: 700,
-                              ), // Smooth animation
-                              curve: Curves.easeOut, // Eases out smoothly
-                              builder: (context, value, child) {
-                                return CircularProgressIndicator(
-                                  value: value, // Animated progress
-                                  backgroundColor: Colors.grey[300],
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.green,
-                                  ),
-                                  strokeWidth: 6,
-                                );
-                              },
-                            ),
-                            Center(
-                              child: Text(
-                                "${track.completionPercentage.toStringAsFixed(0)}%",
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(width: 16),
-                      Text(
-                        "Your Progress",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  addGoalsButton(context),
-                ],
-              ),
-            ),
+            buildCircularProgress(track, context),
 
             // Checklist of Goals with Animated Checkboxes
             if (track.goals.isEmpty)
@@ -189,113 +130,180 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
 
-            Expanded(
-              child: ListView.builder(
-                itemCount: track.goals.length,
-                itemBuilder: (context, index) {
-                  final goal = track.goals[index];
+            buildGoalsList(track, trackProvider, streakProvider),
 
-                  return ListTile(
-                    subtitle: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Text(
-                        goal.description.isNotEmpty
-                            ? "What you learnt: ${goal.description}"
-                            : "No description added",
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    ),
-                    title: Text(
-                      goal.title,
-                      style: TextStyle(
-                        decoration:
-                            goal.isCompleted
-                                ? TextDecoration.lineThrough
-                                : null,
-                      ),
-                    ),
-                    trailing: IconButton(
-                      onPressed: () async {
-                        // Show confirmation dialog before deleting
-                        final shouldDelete = await showDialog<bool>(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              title: Text('Delete Goal?'),
-                              content: Text(
-                                'Are you sure you want to delete this goal? This action cannot be undone.',
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(
-                                      context,
-                                      false,
-                                    ); // Do not delete
-                                  },
-                                  child: Text('Cancel'),
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(
-                                      context,
-                                      true,
-                                    ); // Confirm deletion
-                                  },
-                                  child: Text(
-                                    'Delete',
-                                    style: TextStyle(color: Colors.red),
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-
-                        if (shouldDelete == true) {
-                          // If the user confirms, delete the goal
-                          trackProvider.deleteGoal(index);
-                        }
-                      },
-                      icon: Icon(Icons.delete_outline, color: Colors.red[400]),
-                    ),
-                    leading: AnimatedSwitcher(
-                      duration: Duration(milliseconds: 300),
-                      transitionBuilder: (child, animation) {
-                        return ScaleTransition(scale: animation, child: child);
-                      },
-                      child: Column(
-                        children: [
-                          Checkbox(
-                            key: ValueKey(goal.isCompleted),
-                            value: goal.isCompleted,
-                            onChanged: (value) {
-                              // toggle completion
-                              if (!goal.isCompleted) {
-                                showAddDescriptionDialog(context, index);
-                              } else {
-                                trackProvider.toggleGoalCompletion(
-                                  index,
-                                  "",
-                                  streakProvider,
-                                );
-                              }
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            if (_isAdLoaded)
-              SizedBox(
-                height: _bannerAd!.size.height.toDouble(),
-                child: AdWidget(ad: _bannerAd!),
-              ),
+            if (_isAdLoaded) buildAdWidget(),
           ],
         ),
+      ),
+    );
+  }
+
+  /* 
+    ==================
+    | HELPER METHODS |
+    ==================
+  */
+  SizedBox buildAdWidget() {
+    return SizedBox(
+      height: _bannerAd!.size.height.toDouble(),
+      child: AdWidget(ad: _bannerAd!),
+    );
+  }
+
+  Expanded buildGoalsList(
+    TrackEntry track,
+    TrackProvider trackProvider,
+    StreakProvider streakProvider,
+  ) {
+    return Expanded(
+      child: ListView.builder(
+        itemCount: track.goals.length,
+        itemBuilder: (context, index) {
+          final goal = track.goals[index];
+
+          return ListTile(
+            subtitle: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Text(
+                goal.description.isNotEmpty
+                    ? "What you learnt: ${goal.description}"
+                    : "No description added",
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
+            title: Text(
+              goal.title,
+              style: TextStyle(
+                decoration:
+                    goal.isCompleted ? TextDecoration.lineThrough : null,
+              ),
+            ),
+            trailing: IconButton(
+              onPressed: () async {
+                // Show confirmation dialog before deleting
+                final shouldDelete = await showDialog<bool>(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: Text('Delete Goal?'),
+                      content: Text(
+                        'Are you sure you want to delete this goal? This action cannot be undone.',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context, false); // Do not delete
+                          },
+                          child: Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context, true); // Confirm deletion
+                          },
+                          child: Text(
+                            'Delete',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                );
+
+                if (shouldDelete == true) {
+                  // If the user confirms, delete the goal
+                  trackProvider.deleteGoal(index);
+                }
+              },
+              icon: Icon(Icons.delete_outline, color: Colors.red[400]),
+            ),
+            leading: AnimatedSwitcher(
+              duration: Duration(milliseconds: 300),
+              transitionBuilder: (child, animation) {
+                return ScaleTransition(scale: animation, child: child);
+              },
+              child: Column(
+                children: [
+                  Checkbox(
+                    key: ValueKey(goal.isCompleted),
+                    value: goal.isCompleted,
+                    onChanged: (value) {
+                      // toggle completion
+                      if (!goal.isCompleted) {
+                        showAddDescriptionDialog(context, index);
+                      } else {
+                        trackProvider.toggleGoalCompletion(
+                          index,
+                          "",
+                          streakProvider,
+                        );
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Padding buildCircularProgress(TrackEntry track, BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 80,
+                height: 80,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    TweenAnimationBuilder<double>(
+                      tween: Tween<double>(
+                        begin: 0,
+                        end: track.completionPercentage / 100,
+                      ),
+                      duration: Duration(milliseconds: 700), // Smooth animation
+                      curve: Curves.easeOut, // Eases out smoothly
+                      builder: (context, value, child) {
+                        return CircularProgressIndicator(
+                          value: value, // Animated progress
+                          backgroundColor: Colors.grey[300],
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.green,
+                          ),
+                          strokeWidth: 6,
+                        );
+                      },
+                    ),
+                    Center(
+                      child: Text(
+                        "${track.completionPercentage.toStringAsFixed(0)}%",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(width: 16),
+              Text(
+                "Your Progress",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          addGoalsButton(context),
+        ],
       ),
     );
   }
