@@ -29,7 +29,6 @@ class TrackProvider extends ChangeNotifier {
     final track = _tracks.firstWhere((t) => t.id == _selectedTrackId);
 
     track.goals.add(Goal(title: goalTitle)); // Update goals list
-    print("Track is in box: ${track.isInBox}");
 
     track.save(); // 🔥 Save updated TrackEntry to Hive
     notifyListeners();

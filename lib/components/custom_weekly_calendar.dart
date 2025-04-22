@@ -215,11 +215,13 @@ class CustomWeeklyCalendar extends StatelessWidget {
   ) {
     showModalBottomSheet(
       context: context,
+
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (context) {
         return Container(
+          width: double.infinity,
           padding: EdgeInsets.all(16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -230,11 +232,9 @@ class CustomWeeklyCalendar extends StatelessWidget {
               ),
               SizedBox(height: 10),
               if (completedGoals.isEmpty)
-                Expanded(
-                  child: Text(
-                    "No goals completed on this day.",
-                    style: TextStyle(fontSize: 16),
-                  ),
+                Text(
+                  "No goals completed on this day.",
+                  style: TextStyle(fontSize: 16),
                 )
               else
                 ...completedGoals.map(

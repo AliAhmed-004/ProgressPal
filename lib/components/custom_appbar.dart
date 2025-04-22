@@ -26,7 +26,10 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
                   provider.selectTrack(newId);
                 },
                 itemBuilder: (BuildContext context) {
-                  return tracks.map((track) {
+                  final sortedTracks = [...tracks]
+                    ..sort((a, b) => a.date.compareTo(b.date)); // Oldest first
+
+                  return sortedTracks.map((track) {
                     return PopupMenuItem<String>(
                       value: track.id,
                       child: Row(
