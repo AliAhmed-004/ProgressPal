@@ -27,7 +27,7 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
                 },
                 itemBuilder: (BuildContext context) {
                   final sortedTracks = [...tracks]
-                    ..sort((a, b) => a.date.compareTo(b.date)); // Oldest first
+                    ..sort((a, b) => b.date.compareTo(a.date)); // Oldest first
 
                   return sortedTracks.map((track) {
                     return PopupMenuItem<String>(
@@ -39,13 +39,20 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
                           IconButton(
                             icon: Icon(Icons.delete, color: Colors.red),
                             onPressed: () async {
-                              final shouldDelete = await showDialog<bool>(
+                              final hasIncompleteGoals = track.goals.any(
+                                (goal) => !goal.isCompleted,
+                              );
+
+                              // Step 1: Show initial warning/confirmation dialog
+                              final initialConfirm = await showDialog<bool>(
                                 context: context,
                                 builder:
                                     (context) => AlertDialog(
                                       title: Text('Delete Track?'),
                                       content: Text(
-                                        'Are you sure you want to delete the track "${track.title}"? This action cannot be undone.',
+                                        hasIncompleteGoals
+                                            ? 'This track has incomplete goals. Do you really want to delete it?'
+                                            : 'Are you sure you want to delete the track "${track.title}"? This action cannot be undone.',
                                       ),
                                       actions: [
                                         TextButton(
@@ -59,14 +66,75 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
                                               () =>
                                                   Navigator.pop(context, true),
                                           child: Text(
-                                            'Delete',
+                                            'Continue',
                                             style: TextStyle(color: Colors.red),
                                           ),
                                         ),
                                       ],
                                     ),
                               );
-                              if (shouldDelete == true) {
+
+                              if (initialConfirm != true) return;
+
+                              // Step 2: Require user to type track name
+                              final controller = TextEditingController();
+                              final finalConfirmed = await showDialog<bool>(
+                                context: context,
+                                builder:
+                                    (context) => AlertDialog(
+                                      title: Text('Type to Confirm'),
+                                      content: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            'To prevent accidental deletion of the track, type its name for confirmation:\n\n"${track.title}"',
+                                          ),
+                                          SizedBox(height: 12),
+                                          TextField(
+                                            controller: controller,
+                                            decoration: InputDecoration(
+                                              border: OutlineInputBorder(),
+                                              labelText: 'Track name',
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed:
+                                              () =>
+                                                  Navigator.pop(context, false),
+                                          child: Text('Cancel'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            final input =
+                                                controller.text.trim();
+                                            if (input == track.title) {
+                                              Navigator.pop(context, true);
+                                            } else {
+                                              Navigator.pop(context, false);
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                    'Track name did not match. Deletion cancelled.',
+                                                  ),
+                                                ),
+                                              );
+                                            }
+                                          },
+                                          child: Text(
+                                            'Confirm Delete',
+                                            style: TextStyle(color: Colors.red),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                              );
+
+                              if (finalConfirmed == true) {
                                 provider.deleteTrack(track.id);
                                 Navigator.pop(context); // Close menu
                               }
