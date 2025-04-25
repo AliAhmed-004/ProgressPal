@@ -19,27 +19,28 @@ class GeminiGoalGenerator {
     return _parseGoals(text);
   }
 
-String _buildPrompt(String trackTitle, List<String>? existingGoals) {
-  // Base instructions
-  String base =
-      "You're helping to create a chronological list of learning goals for a track titled '$trackTitle'. "
-      "Each goal should be short, clear, and practical — written as a concise heading, without descriptions. "
-      "Only provide 5 new goals as a bullet list, no introduction or explanation.";
+  String _buildPrompt(String trackTitle, List<String>? existingGoals) {
+    // Base instructions
+    String base =
+        "You're helping a user create a list of 5 practical goals for a track titled '$trackTitle'.\n"
+        "These goals should be tailored to the title — whether it's learning, a personal project, a habit, or anything else.\n"
+        "Each goal must be short, actionable, and written as a heading — no descriptions.\n"
+        "Respond with only a bullet list of 5 goals. No extra text.";
 
-  // If there are existing goals, treat them as completed
-  if (existingGoals != null && existingGoals.isNotEmpty) {
-    base +=
-        "\nThe following goals have already been completed in this track:\n"
-        "${existingGoals.map((g) => '- $g').join('\n')}"
-        "\nNow, please generate the *next 5 goals* that logically follow in the learning path. "
-        "Make sure they are different from the completed ones and continue the learning progression naturally.";
-  } else {
-    base +=
-        "\nThis is a new track, so please generate the first 5 beginner-friendly goals to get started.";
+    // If there are existing goals, treat them as completed
+    if (existingGoals != null && existingGoals.isNotEmpty) {
+      base +=
+          "\nThe following goals have already been completed in this track:\n"
+          "${existingGoals.map((g) => '- $g').join('\n')}"
+          "\nNow, please generate the *next 5 goals* that logically follow in the learning path. "
+          "Make sure they are different from the completed ones and continue the learning progression naturally.";
+    } else {
+      base +=
+          "\nThis is a new track, so please generate the first 5 beginner-friendly goals to get started.";
+    }
+
+    return base;
   }
-
-  return base;
-}
 
   List<String> _parseGoals(String rawText) {
     final lines =
