@@ -22,18 +22,29 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await notiService.initNotification();
 
   final notification = message.notification;
+  final data = message.data;
+  final type = data['type'] ?? 'default';
+
   final title = notification?.title ?? '';
+  final body = notification?.body ?? '';
 
   if (notification != null) {
-    final isReminder = title.contains('Stay on top of your game!');
-    final hasCompletedGoal =
-        await StreakChecker().hasCompletedGoalsTodayFromHive();
-
-    if (!hasCompletedGoal || !isReminder) {
+    if (type == 'reminder') {
+      final hasCompletedGoal =
+          await StreakChecker().hasCompletedGoalsTodayFromHive();
+      if (!hasCompletedGoal) {
+        await notiService.showCustomNotification(
+          id: 100,
+          title: title,
+          body: body,
+        );
+      }
+    } else {
+      // For other types like 'motivational', show without check
       await notiService.showCustomNotification(
-        id: isReminder ? 100 : 101,
+        id: 101,
         title: title,
-        body: notification.body ?? '',
+        body: body,
       );
     }
   }
