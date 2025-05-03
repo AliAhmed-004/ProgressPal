@@ -166,102 +166,123 @@ class _HomePageState extends State<HomePage> {
     StreakProvider streakProvider,
   ) {
     return Expanded(
-      child: ListView.builder(
-        itemCount: track.goals.length,
-        itemBuilder: (context, index) {
-          final goal = track.goals[index];
-
-          return ListTile(
-            subtitle: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Text(
-                goal.description.isNotEmpty
-                    ? "What you learnt: ${goal.description}"
-                    : "No description added",
-                style: TextStyle(color: Colors.grey),
+      child: ReorderableListView(
+        onReorder: (oldIndex, newIndex) {
+          if (newIndex > oldIndex) newIndex--;
+          trackProvider.reorderGoal(oldIndex, newIndex);
+        },
+        children: [
+          for (int index = 0; index < track.goals.length; index++)
+            ListTile(
+              key: ValueKey(track.goals[index]),
+              subtitle: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Text(
+                  track.goals[index].description.isNotEmpty
+                      ? "What you learnt: ${track.goals[index].description}"
+                      : "No description added",
+                  style: TextStyle(color: Colors.grey),
+                ),
               ),
-            ),
-            title: Text(
-              goal.title,
-              style: TextStyle(
-                decoration:
-                    goal.isCompleted ? TextDecoration.lineThrough : null,
+              title: Text(
+                track.goals[index].title,
+                style: TextStyle(
+                  decoration:
+                      track.goals[index].isCompleted
+                          ? TextDecoration.lineThrough
+                          : null,
+                ),
               ),
-            ),
-            trailing: IconButton(
-              onPressed: () async {
-                // Show confirmation dialog before deleting
-                final shouldDelete = await showDialog<bool>(
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      title: Text('Delete Goal?'),
-                      content: Text(
-                        'Are you sure you want to delete this goal? This action cannot be undone.',
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context, false); // Do not delete
-                          },
-                          child: Text('Cancel'),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context, true); // Confirm deletion
-                          },
-                          child: Text(
-                            'Delete',
-                            style: TextStyle(color: Colors.red),
+              trailing: IconButton(
+                onPressed: () async {
+                  final shouldDelete = await showDialog<bool>(
+                    context: context,
+                    builder:
+                        (context) => AlertDialog(
+                          title: Text('Delete Goal?'),
+                          content: Text(
+                            'Are you sure you want to delete this goal? This action cannot be undone.',
                           ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, false),
+                              child: Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, true),
+                              child: Text(
+                                'Delete',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    );
-                  },
-                );
+                  );
 
-                if (shouldDelete == true) {
-                  // If the user confirms, delete the goal
-                  trackProvider.deleteGoal(index);
-                }
-              },
-              icon: Icon(Icons.delete_outline, color: Colors.red[400]),
-            ),
-            leading: AnimatedSwitcher(
-              duration: Duration(milliseconds: 300),
-              transitionBuilder: (child, animation) {
-                return ScaleTransition(scale: animation, child: child);
-              },
-              child: Column(
+                  if (shouldDelete == true) {
+                    trackProvider.deleteGoal(index);
+                  }
+                },
+                icon: Icon(Icons.delete_outline, color: Colors.red[400]),
+              ),
+              leading: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Checkbox(
-                    key: ValueKey(goal.isCompleted),
-                    value: goal.isCompleted,
-                    onChanged: (value) {
-                      // toggle completion
-                      if (!goal.isCompleted) {
-                        showAddDescriptionDialog(context, index);
-                      } else {
-                        trackProvider.toggleGoalCompletion(
-                          index,
-                          "",
-                          streakProvider,
-                        );
-                      }
-                    },
+                  // Custom drag handle with 2x3 dots
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(children: [dot(), dot()]),
+                        SizedBox(height: 2),
+                        Row(children: [dot(), dot()]),
+                        SizedBox(height: 2),
+                        Row(children: [dot(), dot()]),
+                      ],
+                    ),
+                  ),
+                  // Checkbox to mark goal completion
+                  AnimatedSwitcher(
+                    duration: Duration(milliseconds: 300),
+                    transitionBuilder:
+                        (child, animation) =>
+                            ScaleTransition(scale: animation, child: child),
+                    child: Checkbox(
+                      key: ValueKey(track.goals[index].isCompleted),
+                      value: track.goals[index].isCompleted,
+                      onChanged: (value) {
+                        if (!track.goals[index].isCompleted) {
+                          showAddDescriptionDialog(context, index);
+                        } else {
+                          trackProvider.toggleGoalCompletion(
+                            index,
+                            "",
+                            streakProvider,
+                          );
+                        }
+                      },
+                    ),
                   ),
                 ],
               ),
             ),
-          );
-        },
+        ],
       ),
     );
   }
 
+  // Helper method to create a dot for the drag handle
+  Widget dot() => Container(
+    width: 4,
+    height: 4,
+    margin: EdgeInsets.all(1),
+    decoration: BoxDecoration(color: Colors.grey, shape: BoxShape.circle),
+  );
+
   Padding buildCircularProgress(TrackEntry track, BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

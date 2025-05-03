@@ -157,4 +157,10 @@ class TrackProvider extends ChangeNotifier {
   void setGoalCompletionStatus(Goal goal, bool isCompleted) {
     goal.isCompleted = isCompleted;
   }
+
+  void reorderGoal(int oldIndex, int newIndex) {
+    final goal = selectedTrack.goals.removeAt(oldIndex);
+    selectedTrack.goals.insert(newIndex, goal);
+    notifyListeners();
+  }
 }
