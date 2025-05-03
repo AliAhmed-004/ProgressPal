@@ -321,14 +321,30 @@ class _HomePageState extends State<HomePage> {
     return IconButton(
       icon: Icon(Icons.add),
       onPressed: () async {
-        String? newGoal = await showDialog(
+        final _formKey = GlobalKey<FormState>();
+        final TextEditingController controller = TextEditingController();
+
+        String? newGoal = await showDialog<String>(
           context: context,
+          barrierDismissible: false, // Prevents closing on outside tap
           builder: (context) {
-            TextEditingController controller = TextEditingController();
             return AlertDialog(
-              content: TextField(
-                controller: controller,
-                decoration: InputDecoration(hintText: 'Enter goal title'),
+              title: Text('Add Goal'),
+              content: Form(
+                key: _formKey,
+                child: TextFormField(
+                  controller: controller,
+                  decoration: InputDecoration(
+                    hintText: 'Enter goal title',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Goal title is required';
+                    }
+                    return null;
+                  },
+                ),
               ),
               actions: [
                 TextButton(
@@ -339,12 +355,19 @@ class _HomePageState extends State<HomePage> {
                 ),
                 TextButton(
                   onPressed: () {
-                    Navigator.pop(context, controller.text);
+                    if (_formKey.currentState!.validate()) {
+                      Navigator.pop(context, controller.text.trim());
+                    }
+                    // Else: stays open and shows error
                   },
                   child: Text('Add'),
                 ),
                 TextButton(
                   onPressed: () {
+                    Navigator.pop(
+                      context,
+                      null,
+                    ); // You can change this if needed
                     showGeneratedGoals();
                   },
                   child: Text('Generate Goals'),
