@@ -28,6 +28,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   BannerAd? _bannerAd;
   bool _isAdLoaded = false;
+  int? _draggingIndex;
 
   @override
   void initState() {
@@ -166,31 +167,74 @@ class _HomePageState extends State<HomePage> {
     StreakProvider streakProvider,
   ) {
     return Expanded(
-      child: ReorderableListView(
+      child: ReorderableListView.builder(
+        padding: EdgeInsets.only(bottom: 20),
+        buildDefaultDragHandles: false,
+        onReorderStart: (index) {
+          setState(() => _draggingIndex = index);
+        },
+        onReorderEnd: (_) {
+          setState(() => _draggingIndex = null);
+        },
         onReorder: (oldIndex, newIndex) {
           if (newIndex > oldIndex) newIndex--;
           trackProvider.reorderGoal(oldIndex, newIndex);
         },
-        children: [
-          for (int index = 0; index < track.goals.length; index++)
-            ListTile(
-              key: ValueKey(track.goals[index]),
+        itemCount: track.goals.length,
+        itemBuilder: (context, index) {
+          final goal = track.goals[index];
+          return Container(
+            key: ValueKey(goal),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color:
+                    _draggingIndex == index ? Colors.blue : Colors.transparent,
+                width: 2,
+              ),
+            ),
+            child: ListTile(
+              leading: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ReorderableDragStartListener(
+                    index: index,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 12.0),
+                      child: Icon(Icons.drag_handle, color: Colors.grey),
+                    ),
+                  ),
+                  Checkbox(
+                    value: goal.isCompleted,
+                    onChanged: (value) {
+                      if (!goal.isCompleted) {
+                        showAddDescriptionDialog(context, index);
+                      } else {
+                        trackProvider.toggleGoalCompletion(
+                          index,
+                          "",
+                          streakProvider,
+                        );
+                      }
+                    },
+                  ),
+                ],
+              ),
+              title: Text(
+                goal.title,
+                style: TextStyle(
+                  decoration:
+                      goal.isCompleted ? TextDecoration.lineThrough : null,
+                ),
+              ),
               subtitle: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Text(
-                  track.goals[index].description.isNotEmpty
-                      ? "What you learnt: ${track.goals[index].description}"
+                  goal.description.isNotEmpty
+                      ? "What you learnt: ${goal.description}"
                       : "No description added",
                   style: TextStyle(color: Colors.grey),
-                ),
-              ),
-              title: Text(
-                track.goals[index].title,
-                style: TextStyle(
-                  decoration:
-                      track.goals[index].isCompleted
-                          ? TextDecoration.lineThrough
-                          : null,
                 ),
               ),
               trailing: IconButton(
@@ -225,60 +269,12 @@ class _HomePageState extends State<HomePage> {
                 },
                 icon: Icon(Icons.delete_outline, color: Colors.red[400]),
               ),
-              leading: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Custom drag handle with 2x3 dots
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Row(children: [dot(), dot()]),
-                        SizedBox(height: 2),
-                        Row(children: [dot(), dot()]),
-                        SizedBox(height: 2),
-                        Row(children: [dot(), dot()]),
-                      ],
-                    ),
-                  ),
-                  // Checkbox to mark goal completion
-                  AnimatedSwitcher(
-                    duration: Duration(milliseconds: 300),
-                    transitionBuilder:
-                        (child, animation) =>
-                            ScaleTransition(scale: animation, child: child),
-                    child: Checkbox(
-                      key: ValueKey(track.goals[index].isCompleted),
-                      value: track.goals[index].isCompleted,
-                      onChanged: (value) {
-                        if (!track.goals[index].isCompleted) {
-                          showAddDescriptionDialog(context, index);
-                        } else {
-                          trackProvider.toggleGoalCompletion(
-                            index,
-                            "",
-                            streakProvider,
-                          );
-                        }
-                      },
-                    ),
-                  ),
-                ],
-              ),
             ),
-        ],
+          );
+        },
       ),
     );
   }
-
-  // Helper method to create a dot for the drag handle
-  Widget dot() => Container(
-    width: 4,
-    height: 4,
-    margin: EdgeInsets.all(1),
-    decoration: BoxDecoration(color: Colors.grey, shape: BoxShape.circle),
-  );
 
   Padding buildCircularProgress(TrackEntry track, BuildContext context) {
     return Padding(
