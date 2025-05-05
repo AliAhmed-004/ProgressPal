@@ -381,10 +381,6 @@ class _HomePageState extends State<HomePage> {
                 ),
                 TextButton(
                   onPressed: () {
-                    Navigator.pop(
-                      context,
-                      null,
-                    ); // You can change this if needed
                     showGeneratedGoals();
                   },
                   child: Text('Generate Goals'),
