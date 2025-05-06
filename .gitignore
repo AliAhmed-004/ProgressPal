@@ -46,3 +46,7 @@ app.*.map.json
 
 # API key
 lib/secrets/secrets.dart
+
+# Keystore file
+/android/app/my-release-key.jks
+/android/key.properties
