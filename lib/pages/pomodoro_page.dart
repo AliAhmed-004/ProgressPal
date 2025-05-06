@@ -5,6 +5,8 @@ import 'package:vibration/vibration.dart';
 import 'package:flutter/services.dart';
 
 class PomodoroScreen extends StatefulWidget {
+  const PomodoroScreen({super.key});
+
   @override
   _PomodoroScreenState createState() => _PomodoroScreenState();
 }
@@ -15,7 +17,7 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
   Timer? _timer;
   bool _isRunning = false;
   bool _timerStarted = false;
-  TextEditingController _customTimeController = TextEditingController();
+  final TextEditingController _customTimeController = TextEditingController();
 
   @override
   void initState() {
@@ -137,6 +139,8 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          Text("Pomodoro Mode"),
+          SizedBox(height: 20),
           Text(
             "Select Duration",
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
