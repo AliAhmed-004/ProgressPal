@@ -265,55 +265,59 @@ class _HomePageState extends State<HomePage> {
 
   Padding buildCircularProgress(TrackEntry track, BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              SizedBox(
-                width: 80,
-                height: 80,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    TweenAnimationBuilder<double>(
-                      tween: Tween<double>(
-                        begin: 0,
-                        end: track.completionPercentage / 100,
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: 80,
+                  height: 80,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      TweenAnimationBuilder<double>(
+                        tween: Tween<double>(
+                          begin: 0,
+                          end: track.completionPercentage / 100,
+                        ),
+                        duration: Duration(
+                          milliseconds: 700,
+                        ), // Smooth animation
+                        curve: Curves.easeOut, // Eases out smoothly
+                        builder: (context, value, child) {
+                          return CircularProgressIndicator(
+                            value: value, // Animated progress
+                            backgroundColor: Colors.grey[300],
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.green,
+                            ),
+                            strokeWidth: 6,
+                          );
+                        },
                       ),
-                      duration: Duration(milliseconds: 700), // Smooth animation
-                      curve: Curves.easeOut, // Eases out smoothly
-                      builder: (context, value, child) {
-                        return CircularProgressIndicator(
-                          value: value, // Animated progress
-                          backgroundColor: Colors.grey[300],
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.green,
+                      Center(
+                        child: Text(
+                          "${track.completionPercentage.toStringAsFixed(0)}%",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
-                          strokeWidth: 6,
-                        );
-                      },
-                    ),
-                    Center(
-                      child: Text(
-                        "${track.completionPercentage.toStringAsFixed(0)}%",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              SizedBox(width: 16),
-              Text(
-                "Your Progress",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-            ],
+                SizedBox(width: 16),
+                Text(
+                  "Your Progress",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
           ),
           addGoalsButton(context),
         ],

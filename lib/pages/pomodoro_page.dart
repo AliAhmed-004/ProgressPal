@@ -68,28 +68,34 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
     }
 
     // Play alarm sound
-    await _audioPlayer.play(AssetSource('sounds/alarm.mp3'));
+    try {
+      await _audioPlayer.play(AssetSource('sounds/alarm.mp3'));
+    } catch (e) {
+      print("Audio not played: $e");
+    }
 
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder:
-          (context) => AlertDialog(
-            title: Text("Time's Up!"),
-            content: Text("Take a break!"),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Vibration.cancel(); // Stop vibration
-                  _audioPlayer.stop(); // Stop sound
-                  Navigator.pop(context);
-                  _resetTimer();
-                },
-                child: Text("OK"),
-              ),
-            ],
-          ),
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder:
+            (context) => AlertDialog(
+              title: Text("Time's Up!"),
+              content: Text("Take a break!"),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Vibration.cancel();
+                    _audioPlayer.stop();
+                    Navigator.pop(context);
+                    _resetTimer();
+                  },
+                  child: Text("OK"),
+                ),
+              ],
+            ),
+      );
+    });
   }
 
   void _setCustomTime() {
