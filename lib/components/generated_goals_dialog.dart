@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 class GeneratedGoalsDialog extends StatefulWidget {
   final List<String> goals;
 
-  GeneratedGoalsDialog({Key? key, required this.goals}) : super(key: key);
+  const GeneratedGoalsDialog({super.key, required this.goals});
 
   @override
   _GeneratedGoalsDialogState createState() => _GeneratedGoalsDialogState();

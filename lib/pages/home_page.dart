@@ -329,7 +329,7 @@ class _HomePageState extends State<HomePage> {
     return IconButton(
       icon: Icon(Icons.add),
       onPressed: () async {
-        final _formKey = GlobalKey<FormState>();
+        final formKey = GlobalKey<FormState>();
         final TextEditingController controller = TextEditingController();
 
         String? newGoal = await showDialog<String>(
@@ -339,7 +339,7 @@ class _HomePageState extends State<HomePage> {
             return AlertDialog(
               title: Text('Add Goal'),
               content: Form(
-                key: _formKey,
+                key: formKey,
                 child: TextFormField(
                   controller: controller,
                   decoration: InputDecoration(
@@ -363,7 +363,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 TextButton(
                   onPressed: () {
-                    if (_formKey.currentState!.validate()) {
+                    if (formKey.currentState!.validate()) {
                       Navigator.pop(context, controller.text.trim());
                     }
                     // Else: stays open and shows error
