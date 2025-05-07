@@ -8,6 +8,7 @@ class PomodoroScreen extends StatefulWidget {
   const PomodoroScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _PomodoroScreenState createState() => _PomodoroScreenState();
 }
 
@@ -70,9 +71,8 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
     // Play alarm sound
     try {
       await _audioPlayer.play(AssetSource('sounds/alarm.mp3'));
-    } catch (e) {
-      print("Audio not played: $e");
-    }
+      // ignore: empty_catches
+    } catch (e) {}
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       showDialog(

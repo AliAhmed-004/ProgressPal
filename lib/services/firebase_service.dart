@@ -11,10 +11,6 @@ class FirebaseService {
     // Request notification permissions (especially for iOS)
     await _firebaseMessaging.requestPermission();
 
-    // Get and print the device token
-    final fcmToken = await _firebaseMessaging.getToken();
-    print("FCM Token: $fcmToken");
-
     // Handle messages when the app is in the foreground
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       final hasCompletedGoalToday =
@@ -34,7 +30,6 @@ class FirebaseService {
 
     // Optional: handle messages that open the app from background/tapped
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print("Notification clicked with data: ${message.data}");
       // You can navigate the user to a screen here if needed
     });
   }

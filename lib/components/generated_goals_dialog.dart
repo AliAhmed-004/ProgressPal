@@ -8,6 +8,7 @@ class GeneratedGoalsDialog extends StatefulWidget {
   const GeneratedGoalsDialog({super.key, required this.goals});
 
   @override
+  // ignore: library_private_types_in_public_api
   _GeneratedGoalsDialogState createState() => _GeneratedGoalsDialogState();
 }
 

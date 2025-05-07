@@ -20,7 +20,6 @@ class NotiService {
     tz.setLocalLocation(tz.getLocation(currentTimezone));
 
     // android init settings
-    //TODO Change to App icon
     const initSettingsAndroid = AndroidInitializationSettings(
       '@mipmap/ic_launcher',
     );
@@ -110,7 +109,6 @@ class NotiService {
       // matchDateTimeComponents: DateTimeComponents.time,
       payload: null,
     );
-    print("Scheduling at: ${scheduledDate.toLocal()}");
   }
 
   // Cancel all notifications
