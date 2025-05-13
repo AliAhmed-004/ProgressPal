@@ -31,7 +31,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.progresspal"
+        applicationId = "com.spudbyte.progresspal"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
