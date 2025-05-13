@@ -72,7 +72,7 @@ class TrackProvider extends ChangeNotifier {
     // Create the Progress Entry
     final entry = TrackEntry(
       id: const Uuid().v4(),
-      title: title,
+      title: title.trim(),
       goals: [],
       date: DateTime.now(),
     );
