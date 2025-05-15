@@ -220,34 +220,36 @@ class CustomWeeklyCalendar extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (context) {
-        return Container(
-          width: double.infinity,
-          padding: EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                "Completed Goals",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 10),
-              if (completedGoals.isEmpty)
+        return SafeArea(
+          child: Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
                 Text(
-                  "No goals completed on this day.",
-                  style: TextStyle(fontSize: 16),
-                )
-              else
-                ...completedGoals.map(
-                  (goal) => ListTile(
-                    title: Text(goal.title, style: TextStyle(fontSize: 16)),
-                    subtitle:
-                        goal.description.isNotEmpty
-                            ? Text(goal.description)
-                            : null,
-                    leading: Icon(Icons.check_circle, color: Colors.green),
-                  ),
+                  "Completed Goals",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-            ],
+                SizedBox(height: 10),
+                if (completedGoals.isEmpty)
+                  Text(
+                    "No goals completed on this day.",
+                    style: TextStyle(fontSize: 16),
+                  )
+                else
+                  ...completedGoals.map(
+                    (goal) => ListTile(
+                      title: Text(goal.title, style: TextStyle(fontSize: 16)),
+                      subtitle:
+                          goal.description.isNotEmpty
+                              ? Text(goal.description)
+                              : null,
+                      leading: Icon(Icons.check_circle, color: Colors.green),
+                    ),
+                  ),
+              ],
+            ),
           ),
         );
       },
