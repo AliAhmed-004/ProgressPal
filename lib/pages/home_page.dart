@@ -267,6 +267,7 @@ class _HomePageState extends State<HomePage> {
                         if (newTitle.isNotEmpty && newTitle != goal.title) {
                           goal.title = newTitle;
                           track.save(); // Save the modified TrackEntry to Hive
+                          trackProvider.trackNotifyListeners();
                         }
                       }
                     },
