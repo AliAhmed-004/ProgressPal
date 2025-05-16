@@ -78,7 +78,8 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final streakProvider = Provider.of<StreakProvider>(context);
     final trackProvider = Provider.of<TrackProvider>(context);
-    final track = trackProvider.selectedTrack;
+    // final tracks = trackProvider.tracks;
+    final selectedTrack = trackProvider.selectedTrack;
 
     return Scaffold(
       appBar: CustomAppbar(),
@@ -113,21 +114,9 @@ class _HomePageState extends State<HomePage> {
             CustomWeeklyCalendar(),
 
             // Circular Progress Indicator
-            buildCircularProgress(track, context),
+            buildCircularProgress(selectedTrack, context),
 
-            // Checklist of Goals with Animated Checkboxes
-            if (track.goals.isEmpty)
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text('No Goals Added to Current Track'),
-                  SizedBox(height: 8),
-                  Text("Press the '+' button above to add one"),
-                ],
-              ),
-
-            buildGoalsList(track, trackProvider, streakProvider),
+            buildGoalsList(selectedTrack, trackProvider, streakProvider),
 
             // if (_isAdLoaded) buildAdWidget(),
           ],
@@ -148,11 +137,34 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Expanded buildGoalsList(
+  Widget buildGoalsList(
     TrackEntry track,
     TrackProvider trackProvider,
     StreakProvider streakProvider,
   ) {
+    if (trackProvider.tracks.isEmpty) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text('There is no Track created'),
+          SizedBox(height: 8),
+          Text(
+            "Add one by pressing the blue button below, and then the '+' button",
+          ),
+        ],
+      );
+    } else if (track.goals.isEmpty) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text('No Goals Added to Current Track'),
+          SizedBox(height: 8),
+          Text("Press the '+' button above to add one"),
+        ],
+      );
+    }
     return Expanded(
       child: ReorderableListView.builder(
         padding: EdgeInsets.only(bottom: 20),
@@ -208,13 +220,60 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ],
               ),
-              title: Text(
-                goal.title,
-                style: TextStyle(
-                  decoration:
-                      goal.isCompleted ? TextDecoration.lineThrough : null,
-                ),
+              title: Row(
+                children: [
+                  Text(
+                    goal.title,
+                    style: TextStyle(
+                      decoration:
+                          goal.isCompleted ? TextDecoration.lineThrough : null,
+                    ),
+                  ),
+                  IconButton(
+                    icon: Text('Edit', style: TextStyle(fontSize: 12)),
+                    onPressed: () async {
+                      final controller = TextEditingController(
+                        text: goal.title,
+                      );
+                      final shouldSave = await showDialog<bool>(
+                        context: context,
+                        builder:
+                            (context) => AlertDialog(
+                              title: Text("Rename Goal"),
+                              content: TextField(
+                                controller: controller,
+                                autofocus: true,
+                                decoration: InputDecoration(
+                                  hintText: "Enter new goal title",
+                                ),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed:
+                                      () => Navigator.of(context).pop(false),
+                                  child: Text("Cancel"),
+                                ),
+                                TextButton(
+                                  onPressed:
+                                      () => Navigator.of(context).pop(true),
+                                  child: Text("Save"),
+                                ),
+                              ],
+                            ),
+                      );
+
+                      if (shouldSave == true) {
+                        final newTitle = controller.text.trim();
+                        if (newTitle.isNotEmpty && newTitle != goal.title) {
+                          goal.title = newTitle;
+                          track.save(); // Save the modified TrackEntry to Hive
+                        }
+                      }
+                    },
+                  ),
+                ],
               ),
+
               subtitle: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Text(

@@ -10,7 +10,7 @@ class TrackEntry extends HiveObject {
   final String id; // Unique ID
 
   @HiveField(1)
-  final String title; // What the user is tracking
+  String title; // What the user is tracking
 
   @HiveField(2)
   List<Goal> goals = [

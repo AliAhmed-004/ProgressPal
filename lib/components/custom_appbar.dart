@@ -17,146 +17,178 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
         return AppBar(
           title: Row(
             children: [
-              PopupMenuButton<String>(
-                color: Theme.of(context).colorScheme.surface,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                onSelected: (String newId) {
-                  provider.selectTrack(newId);
-                },
-                itemBuilder: (BuildContext context) {
-                  final sortedTracks = [...tracks]
-                    ..sort((a, b) => b.date.compareTo(a.date)); // Oldest first
+              if (tracks.isNotEmpty)
+                PopupMenuButton<String>(
+                  color: Theme.of(context).colorScheme.surface,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  onSelected: (String newId) {
+                    provider.selectTrack(newId);
+                  },
+                  itemBuilder: (BuildContext context) {
+                    final sortedTracks = [...tracks]..sort(
+                      (a, b) => b.date.compareTo(a.date),
+                    ); // Most recent first
 
-                  return sortedTracks.map((track) {
-                    return PopupMenuItem<String>(
-                      value: track.id,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(track.title),
-                          IconButton(
-                            icon: Icon(Icons.delete, color: Colors.red),
-                            onPressed: () async {
-                              final hasIncompleteGoals = track.goals.any(
-                                (goal) => !goal.isCompleted,
-                              );
-
-                              // Step 1: Show initial warning/confirmation dialog
-                              final initialConfirm = await showDialog<bool>(
-                                context: context,
-                                builder:
-                                    (context) => AlertDialog(
-                                      title: Text('Delete Track?'),
-                                      content: Text(
-                                        hasIncompleteGoals
-                                            ? 'This track has incomplete goals. Do you really want to delete it?'
-                                            : 'Are you sure you want to delete the track "${track.title}"? This action cannot be undone.',
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed:
-                                              () =>
-                                                  Navigator.pop(context, false),
-                                          child: Text('Cancel'),
-                                        ),
-                                        TextButton(
-                                          onPressed:
-                                              () =>
-                                                  Navigator.pop(context, true),
-                                          child: Text(
-                                            'Continue',
-                                            style: TextStyle(color: Colors.red),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                              );
-
-                              if (initialConfirm != true) return;
-
-                              // Step 2: Require user to type track name
-                              final controller = TextEditingController();
-                              final finalConfirmed = await showDialog<bool>(
-                                context: context,
-                                builder:
-                                    (context) => AlertDialog(
-                                      title: Text('Type to Confirm'),
-                                      content: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Text(
-                                            'To prevent accidental deletion of the track, type its name for confirmation:\n\n"${track.title}"',
-                                          ),
-                                          SizedBox(height: 12),
-                                          TextField(
+                    return sortedTracks.map((track) {
+                      return PopupMenuItem<String>(
+                        value: track.id,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(child: Text(track.title)),
+                            PopupMenuButton<String>(
+                              icon: Icon(Icons.more_vert),
+                              onSelected: (action) async {
+                                if (action == 'rename') {
+                                  final controller = TextEditingController(
+                                    text: track.title,
+                                  );
+                                  final confirmed = await showDialog<bool>(
+                                    context: context,
+                                    builder:
+                                        (_) => AlertDialog(
+                                          title: Text('Rename Track'),
+                                          content: TextField(
                                             controller: controller,
                                             decoration: InputDecoration(
-                                              border: OutlineInputBorder(),
-                                              labelText: 'Track name',
+                                              labelText: 'New track name',
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed:
-                                              () =>
-                                                  Navigator.pop(context, false),
-                                          child: Text('Cancel'),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            final input =
-                                                controller.text.trim();
-                                            if (input == track.title) {
-                                              Navigator.pop(context, true);
-                                            } else {
-                                              Navigator.pop(context, false);
-                                              ScaffoldMessenger.of(
-                                                context,
-                                              ).showSnackBar(
-                                                SnackBar(
-                                                  content: Text(
-                                                    'Track name did not match. Deletion cancelled.',
+                                          actions: [
+                                            TextButton(
+                                              onPressed:
+                                                  () => Navigator.pop(
+                                                    context,
+                                                    false,
                                                   ),
-                                                ),
-                                              );
-                                            }
-                                          },
-                                          child: Text(
-                                            'Confirm Delete',
-                                            style: TextStyle(color: Colors.red),
-                                          ),
+                                              child: Text('Cancel'),
+                                            ),
+                                            TextButton(
+                                              onPressed:
+                                                  () => Navigator.pop(
+                                                    context,
+                                                    true,
+                                                  ),
+                                              child: Text('Save'),
+                                            ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
-                              );
+                                  );
 
-                              if (finalConfirmed == true) {
-                                provider.deleteTrack(track.id);
-                                Navigator.pop(context); // Close menu
-                              }
-                            },
-                          ),
-                        ],
+                                  if (confirmed == true &&
+                                      controller.text.trim().isNotEmpty) {
+                                    provider.updateTrackTitle(
+                                      track.id,
+                                      controller.text,
+                                    );
+                                    Navigator.pop(context);
+                                  }
+                                }
+
+                                if (action == 'delete') {
+                                  final controller = TextEditingController();
+                                  final finalConfirmed = await showDialog<bool>(
+                                    context: context,
+                                    builder:
+                                        (context) => AlertDialog(
+                                          title: Text('Type to Confirm'),
+                                          content: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                'To prevent accidental deletion of the track, type its name for confirmation:\n\n"${track.title}"',
+                                              ),
+                                              SizedBox(height: 12),
+                                              TextField(
+                                                controller: controller,
+                                                decoration: InputDecoration(
+                                                  border: OutlineInputBorder(),
+                                                  labelText: 'Track name',
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed:
+                                                  () => Navigator.pop(
+                                                    context,
+                                                    false,
+                                                  ),
+                                              child: Text('Cancel'),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
+                                                final input =
+                                                    controller.text.trim();
+                                                if (input == track.title) {
+                                                  Navigator.pop(context, true);
+                                                } else {
+                                                  Navigator.pop(context, false);
+                                                  ScaffoldMessenger.of(
+                                                    context,
+                                                  ).showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        'Track name did not match. Deletion cancelled.',
+                                                      ),
+                                                    ),
+                                                  );
+                                                }
+                                              },
+                                              child: Text(
+                                                'Confirm Delete',
+                                                style: TextStyle(
+                                                  color: Colors.red,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                  );
+
+                                  if (finalConfirmed == true) {
+                                    provider.deleteTrack(track.id);
+                                    // Future.microtask(() {
+                                    //   Navigator.pop(context);
+                                    // });
+                                  }
+                                }
+                              },
+                              itemBuilder:
+                                  (_) => [
+                                    PopupMenuItem(
+                                      value: 'rename',
+                                      child: Text('Rename'),
+                                    ),
+                                    PopupMenuItem(
+                                      value: 'delete',
+                                      child: Text('Delete'),
+                                    ),
+                                  ],
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList();
+                  },
+                  child: Row(
+                    children: [
+                      Text(
+                        selectedTrack.title,
+                        style: const TextStyle(fontSize: 16),
                       ),
-                    );
-                  }).toList();
-                },
-                child: Row(
-                  children: [
-                    Text(
-                      selectedTrack.title,
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                    const Icon(Icons.arrow_drop_down),
-                  ],
-                ),
-              ),
+                      const Icon(Icons.arrow_drop_down),
+                    ],
+                  ),
+                )
+              else
+                const Text('No track selected', style: TextStyle(fontSize: 16)),
             ],
           ),
+
           actions: [
             // Streak Display
             Consumer<StreakProvider>(

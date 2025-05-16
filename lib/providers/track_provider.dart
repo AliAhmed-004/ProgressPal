@@ -92,13 +92,17 @@ class TrackProvider extends ChangeNotifier {
 
   // Delete a Track Entry
   Future<void> deleteTrack(String id) async {
-    // Delete the entry from the Hive database
     await _db.deleteEntry(id);
-
-    // Remove the entry from the list
     _tracks.removeWhere((entry) => entry.id == id);
 
-    // Notify the listeners
+    if (_selectedTrackId == id) {
+      if (_tracks.isNotEmpty) {
+        _selectedTrackId = _tracks.first.id;
+      } else {
+        _selectedTrackId = ''; // or null if nullable
+      }
+    }
+
     notifyListeners();
   }
 
@@ -162,5 +166,23 @@ class TrackProvider extends ChangeNotifier {
     final goal = selectedTrack.goals.removeAt(oldIndex);
     selectedTrack.goals.insert(newIndex, goal);
     notifyListeners();
+  }
+
+  // Track title update
+  void updateTrackTitle(String trackId, String newTitle) {
+    final track = _tracks.firstWhere((t) => t.id == trackId);
+    track.title = newTitle.trim();
+    track.save();
+    notifyListeners();
+  }
+
+  // Goal title update
+  void updateGoalTitle(int index, String newTitle) {
+    final track = selectedTrack;
+    if (index >= 0 && index < track.goals.length) {
+      track.goals[index].title = newTitle.trim();
+      track.save();
+      notifyListeners();
+    }
   }
 }
