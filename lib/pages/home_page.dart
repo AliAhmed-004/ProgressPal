@@ -222,11 +222,16 @@ class _HomePageState extends State<HomePage> {
               ),
               title: Row(
                 children: [
-                  Text(
-                    goal.title,
-                    style: TextStyle(
-                      decoration:
-                          goal.isCompleted ? TextDecoration.lineThrough : null,
+                  Expanded(
+                    child: Text(
+                      goal.title,
+                      style: TextStyle(
+                        decoration:
+                            goal.isCompleted
+                                ? TextDecoration.lineThrough
+                                : null,
+                      ),
+                      softWrap: true,
                     ),
                   ),
                   IconButton(

@@ -151,9 +151,9 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
 
                                   if (finalConfirmed == true) {
                                     provider.deleteTrack(track.id);
-                                    // Future.microtask(() {
-                                    //   Navigator.pop(context);
-                                    // });
+                                    Future.microtask(() {
+                                      Navigator.pop(context);
+                                    });
                                   }
                                 }
                               },
