@@ -426,22 +426,31 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context, null);
-                  },
-                  child: Text('Cancel'),
+                Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context, null);
+                          },
+                          child: Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            if (formKey.currentState!.validate()) {
+                              Navigator.pop(context, controller.text.trim());
+                            }
+                            // Else: stays open and shows error
+                          },
+                          child: Text('Add'),
+                        ),
+                      ],
+                    ),
+                    const AISectionCollapsed(),
+                  ],
                 ),
-                TextButton(
-                  onPressed: () {
-                    if (formKey.currentState!.validate()) {
-                      Navigator.pop(context, controller.text.trim());
-                    }
-                    // Else: stays open and shows error
-                  },
-                  child: Text('Add'),
-                ),
-                const AISectionCollapsed(),
               ],
             );
           },

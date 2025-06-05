@@ -21,13 +21,19 @@ class _AISectionCollapsedState extends State<AISectionCollapsed> {
 
   bool get canUseAI {
     final box = Hive.box('settings');
-    final lastUsed = box.get('last_free_ai_use') as DateTime?;
-    return lastUsed == null || !isSameDay(lastUsed, DateTime.now());
+    final lastUsedMillis = box.get('last_free_ai_use') as int?;
+    final today = DateTime.now().toLocal();
+    final todayOnly = DateTime(today.year, today.month, today.day);
+
+    return lastUsedMillis == null ||
+        DateTime.fromMillisecondsSinceEpoch(lastUsedMillis) != todayOnly;
   }
 
   void _setLastUsedNow() {
     final box = Hive.box('settings');
-    box.put('last_free_ai_use', DateTime.now());
+    final now = DateTime.now().toLocal();
+    final todayOnly = DateTime(now.year, now.month, now.day);
+    box.put('last_free_ai_use', todayOnly.millisecondsSinceEpoch);
   }
 
   bool isSameDay(DateTime a, DateTime b) =>

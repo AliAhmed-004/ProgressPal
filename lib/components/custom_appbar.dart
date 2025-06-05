@@ -165,7 +165,15 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
                                     ),
                                     PopupMenuItem(
                                       value: 'delete',
-                                      child: Text('Delete'),
+                                      child: Text(
+                                        'Delete',
+                                        style: TextStyle(
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.error,
+                                        ),
+                                      ),
                                     ),
                                   ],
                             ),

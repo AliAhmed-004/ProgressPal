@@ -53,14 +53,9 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Init services
+  // Only critical services before runApp
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await HiveDatabase().initHive();
-  await NotiService().requestPermissions();
-  NotiService().initNotification();
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  await FirebaseService().initNotifications();
-  MobileAds.instance.initialize();
 
   runApp(
     ChangeNotifierProvider(
@@ -68,6 +63,26 @@ void main() async {
       child: const ProgressPal(),
     ),
   );
+
+  // Deferred init (non-blocking UI)
+  _initializeServicesInBackground();
+}
+
+Future<void> _initializeServicesInBackground() async {
+  // Request notification permissions
+  await NotiService().requestPermissions();
+
+  // Init local notifications
+  NotiService().initNotification();
+
+  // Set background FCM handler
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  // Init Firebase notifications (e.g., topics, foreground handlers)
+  await FirebaseService().initNotifications();
+
+  // Initialize AdMob (deferred for speed)
+  await MobileAds.instance.initialize();
 }
 
 class ProgressPal extends StatefulWidget {
