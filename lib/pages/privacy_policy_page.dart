@@ -17,7 +17,7 @@ class PrivacyPolicyPage extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Text(
-                  'It seems your device doesn’t have an email app set up.\n\n'
+                  'It seems your device doesn’t have an email app set up, or there are some other technical issues.\n\n'
                   'You can manually email us at:',
                 ),
                 const SizedBox(height: 12),

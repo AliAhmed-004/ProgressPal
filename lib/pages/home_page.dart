@@ -236,49 +236,6 @@ class _HomePageState extends State<HomePage> {
                       softWrap: true,
                     ),
                   ),
-                  IconButton(
-                    icon: Text('Edit', style: TextStyle(fontSize: 12)),
-                    onPressed: () async {
-                      final controller = TextEditingController(
-                        text: goal.title,
-                      );
-                      final shouldSave = await showDialog<bool>(
-                        context: context,
-                        builder:
-                            (context) => AlertDialog(
-                              title: Text("Rename Goal"),
-                              content: TextField(
-                                controller: controller,
-                                autofocus: true,
-                                decoration: InputDecoration(
-                                  hintText: "Enter new goal title",
-                                ),
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed:
-                                      () => Navigator.of(context).pop(false),
-                                  child: Text("Cancel"),
-                                ),
-                                TextButton(
-                                  onPressed:
-                                      () => Navigator.of(context).pop(true),
-                                  child: Text("Save"),
-                                ),
-                              ],
-                            ),
-                      );
-
-                      if (shouldSave == true) {
-                        final newTitle = controller.text.trim();
-                        if (newTitle.isNotEmpty && newTitle != goal.title) {
-                          goal.title = newTitle;
-                          track.save(); // Save the modified TrackEntry to Hive
-                          trackProvider.trackNotifyListeners();
-                        }
-                      }
-                    },
-                  ),
                 ],
               ),
 
@@ -291,37 +248,84 @@ class _HomePageState extends State<HomePage> {
                   style: TextStyle(color: Colors.grey),
                 ),
               ),
-              trailing: IconButton(
-                onPressed: () async {
-                  final shouldDelete = await showDialog<bool>(
-                    context: context,
-                    builder:
-                        (context) => AlertDialog(
-                          title: Text('Delete Goal?'),
-                          content: Text(
-                            'Are you sure you want to delete this goal? This action cannot be undone.',
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, false),
-                              child: Text('Cancel'),
-                            ),
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, true),
-                              child: Text(
-                                'Delete',
-                                style: TextStyle(color: Colors.red),
+              trailing: PopupMenuButton<String>(
+                onSelected: (value) async {
+                  if (value == 'edit') {
+                    final controller = TextEditingController(text: goal.title);
+                    final shouldSave = await showDialog<bool>(
+                      context: context,
+                      builder:
+                          (context) => AlertDialog(
+                            title: Text("Rename Goal"),
+                            content: TextField(
+                              controller: controller,
+                              autofocus: true,
+                              decoration: InputDecoration(
+                                hintText: "Enter new goal title",
                               ),
                             ),
-                          ],
-                        ),
-                  );
-
-                  if (shouldDelete == true) {
-                    trackProvider.deleteGoal(index);
+                            actions: [
+                              TextButton(
+                                onPressed:
+                                    () => Navigator.of(context).pop(false),
+                                child: Text("Cancel"),
+                              ),
+                              TextButton(
+                                onPressed:
+                                    () => Navigator.of(context).pop(true),
+                                child: Text("Save"),
+                              ),
+                            ],
+                          ),
+                    );
+                    if (shouldSave == true) {
+                      final newTitle = controller.text.trim();
+                      if (newTitle.isNotEmpty && newTitle != goal.title) {
+                        goal.title = newTitle;
+                        track.save();
+                        trackProvider.trackNotifyListeners();
+                      }
+                    }
+                  } else if (value == 'delete') {
+                    final shouldDelete = await showDialog<bool>(
+                      context: context,
+                      builder:
+                          (context) => AlertDialog(
+                            title: Text('Delete Goal?'),
+                            content: Text(
+                              'Are you sure you want to delete this goal? This action cannot be undone.',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, false),
+                                child: Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, true),
+                                child: Text(
+                                  'Delete',
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                              ),
+                            ],
+                          ),
+                    );
+                    if (shouldDelete == true) {
+                      trackProvider.deleteGoal(index);
+                    }
                   }
                 },
-                icon: Icon(Icons.delete_outline, color: Colors.red[400]),
+                itemBuilder:
+                    (context) => [
+                      PopupMenuItem(value: 'edit', child: Text('Edit')),
+                      PopupMenuItem(
+                        value: 'delete',
+                        child: Text(
+                          'Delete',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
+                    ],
               ),
             ),
           );
