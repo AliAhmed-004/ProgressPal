@@ -14,6 +14,8 @@ import 'package:progresspal/providers/streak_provider.dart';
 import 'package:progresspal/providers/track_provider.dart';
 import 'package:provider/provider.dart';
 
+import '../components/generate_goals_button.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -399,7 +401,7 @@ class _HomePageState extends State<HomePage> {
 
         String? newGoal = await showDialog<String>(
           context: context,
-          barrierDismissible: false, // Prevents closing on outside tap
+          barrierDismissible: true, // Prevents closing on outside tap
           builder: (context) {
             return AlertDialog(
               title: Text('Add Goal'),
@@ -435,12 +437,7 @@ class _HomePageState extends State<HomePage> {
                   },
                   child: Text('Add'),
                 ),
-                TextButton(
-                  onPressed: () {
-                    showGeneratedGoals();
-                  },
-                  child: Text('Generate Goals'),
-                ),
+                const AISectionCollapsed(),
               ],
             );
           },

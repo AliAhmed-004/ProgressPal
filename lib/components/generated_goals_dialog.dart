@@ -53,6 +53,9 @@ class _GeneratedGoalsDialogState extends State<GeneratedGoalsDialog> {
             for (var g in widget.goals) {
               trackProvider.addGoal(g);
             }
+
+            // Close the "Add Goals" Dialog
+            Navigator.pop(context);
           },
           child: Text("Add to Track"),
         ),
