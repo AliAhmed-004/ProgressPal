@@ -2,7 +2,7 @@ import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:progresspal/secrets/secrets.dart';
 
 class GeminiGoalGenerator {
-  final model = GenerativeModel(model: 'gemini-2.0-flash', apiKey: gemini_api);
+  final model = GenerativeModel(model: 'gemini-2.0-flash', apiKey: GEMINI_API_KEY);
 
   Future<List<String>> generateGoals(
     String trackTitle, [
