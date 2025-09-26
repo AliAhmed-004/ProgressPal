@@ -170,6 +170,7 @@ class TrackProvider extends ChangeNotifier {
   void reorderGoal(int oldIndex, int newIndex) {
     final goal = selectedTrack.goals.removeAt(oldIndex);
     selectedTrack.goals.insert(newIndex, goal);
+    selectedTrack.save();
     notifyListeners();
   }
 
