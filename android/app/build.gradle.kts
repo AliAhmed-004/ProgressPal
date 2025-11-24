@@ -8,17 +8,17 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// Load key.properties
+val keyProperties = Properties()
+val keyPropertiesFile = file("key.properties")
+if (keyPropertiesFile.exists()) {
+  keyProperties.load(FileInputStream(keyPropertiesFile))
+}
+
 android {
     namespace = "com.spudbyte.progresspal"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
-
-    // Load key.properties
-    val keyProperties = Properties()
-    val keyPropertiesFile = rootProject.file("key.properties")
-    if (keyPropertiesFile.exists()) {
-        keyProperties.load(FileInputStream(keyPropertiesFile))
-    }
 
     signingConfigs {
         create("release") {
