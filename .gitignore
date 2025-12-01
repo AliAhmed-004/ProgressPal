@@ -51,3 +51,4 @@ lib/secrets/secrets.dart
 /android/app/my-release-key.jks
 /android/key.properties
 upload_certificate.pem
+android/app/progresspal-upload_certificate.pem
