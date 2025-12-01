@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -6,6 +7,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'firebase_options.dart';
 import 'pages/home_page.dart';
+import 'pages/onboarding_page.dart';
 import 'providers/streak_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/track_provider.dart';
@@ -94,6 +96,7 @@ class ProgressPal extends StatefulWidget {
 
 class _ProgressPalState extends State<ProgressPal> {
   bool _isLoading = true;
+  bool _showOnboarding = false;
 
   @override
   void initState() {
@@ -102,9 +105,18 @@ class _ProgressPalState extends State<ProgressPal> {
   }
 
   Future<void> _initializeApp() async {
-    // Already initialized Hive in main(), so just simulate a short delay if needed
+    // Check if onboarding has been completed
+    final settingsBox = Hive.box(HiveDatabase.settingsBoxName);
+    final onboardingComplete = settingsBox.get(
+      'onboardingComplete',
+      defaultValue: false,
+    );
+
     await Future.delayed(const Duration(milliseconds: 100));
-    setState(() => _isLoading = false);
+    setState(() {
+      _isLoading = false;
+      _showOnboarding = !onboardingComplete;
+    });
   }
 
   @override
@@ -135,7 +147,7 @@ class _ProgressPalState extends State<ProgressPal> {
             theme: AppThemes.lightTheme,
             darkTheme: AppThemes.darkTheme,
             themeMode: themeProvider.currentTheme,
-            home: const HomePage(),
+            home: _showOnboarding ? const OnboardingPage() : const HomePage(),
           ),
         );
   }
