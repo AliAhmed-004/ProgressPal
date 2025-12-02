@@ -18,52 +18,31 @@ class _OnboardingPageState extends State<OnboardingPage> {
   final List<OnboardingItem> _pages = [
     OnboardingItem(
       icon: Icons.lightbulb_outline_rounded,
-      title: 'Learn by Doing',
+      title: 'Welcome to ProgressPal',
       description:
-          'ProgressPal isn\'t a to-do list. It\'s your personal learning companion that turns goals into growth.',
+          'Learn by doing, and reflect to complete. ProgressPal turns your goals into real growth by asking: "What did you learn?"',
       color: Color(0xFF1565C0),
     ),
     OnboardingItem(
-      icon: Icons.edit_note_rounded,
-      title: 'Reflect to Complete',
-      description:
-          'To finish a goal, write what you learned. This simple step reinforces memory and proves your progress.',
-      color: Color(0xFF7B1FA2),
-    ),
-    OnboardingItem(
       icon: Icons.folder_special_rounded,
-      title: 'Organize with Tracks',
+      title: 'Stay Organized & Motivated',
       description:
-          'Group related goals into Tracks like "Learn Python" or "Fitness Journey". Stay focused and organized.',
+          'Group your goals into Tracks, and build daily streaks to stay consistent. Your progress is always visible and rewarding.',
       color: Color(0xFF00897B),
     ),
     OnboardingItem(
-      icon: Icons.local_fire_department_rounded,
-      title: 'Build Streaks',
-      description:
-          'Complete at least one goal daily to maintain your streak. Watch your consistency grow over time.',
-      color: Color(0xFFE65100),
-    ),
-    OnboardingItem(
       icon: Icons.auto_awesome_rounded,
-      title: 'AI-Powered Goals',
+      title: 'Smart Tools for Growth',
       description:
-          'Stuck? Let AI suggest your next learning goal. One free generation per day to keep you moving.',
+          'Get AI-powered goal suggestions and use the Pomodoro timer for focused sessions. ProgressPal helps you learn smarter.',
       color: Color(0xFF5E35B1),
-    ),
-    OnboardingItem(
-      icon: Icons.timer_rounded,
-      title: 'Focus with Pomodoro',
-      description:
-          'Use the built-in timer for focused work sessions. Stay productive with timed intervals.',
-      color: Color(0xFFC62828),
     ),
     OnboardingItem(
       icon: Icons.rocket_launch_rounded,
       title: 'Ready to Grow?',
       description:
-          'Start your learning journey today. Create your first track and set a goal!',
-      color: Color(0xFF1565C0),
+          'Start your learning journey now. Create your first track and set a goal!',
+      color: Color(0xFFE65100),
     ),
   ];
 
