@@ -9,6 +9,7 @@ import 'package:progresspal/components/custom_weekly_calendar.dart';
 import 'package:progresspal/components/generated_goals_dialog.dart';
 import 'package:progresspal/gemini/gemini_helper.dart';
 import 'package:progresspal/models/track_entry.dart';
+import 'package:progresspal/pages/insights_page.dart';
 import 'package:progresspal/pages/pomodoro_page.dart';
 import 'package:progresspal/providers/streak_provider.dart';
 import 'package:progresspal/providers/track_provider.dart';
@@ -96,6 +97,15 @@ class _HomePageState extends State<HomePage> {
             label: "New Track",
             child: Icon(Icons.add_rounded),
             onTap: () => showAddTrackDialog(context),
+          ),
+          SpeedDialChild(
+            label: "Insights",
+            child: Icon(Icons.insights_rounded),
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const InsightsPage()),
+                ),
           ),
           SpeedDialChild(
             label: "Pomodoro",
