@@ -44,20 +44,20 @@ class InsightsPage extends StatelessWidget {
 
   /// Builds the contribution heatmap section.
   Widget _buildHeatmapSection(BuildContext context) {
-    return Consumer<TrackProvider>(
-      builder: (context, trackProvider, child) {
-        // Aggregate all completed goals by date
-        final heatmapData = _aggregateGoalsByDate(trackProvider);
+    return Consumer2<TrackProvider, StreakProvider>(
+      builder: (context, trackProvider, streakProvider, child) {
+        // Aggregate completed goals by date from StreakProvider
+        final heatmapData = _aggregateGoalsByDate(streakProvider);
 
         return _SectionCard(
           title: 'Activity',
           icon: Icons.grid_view_rounded,
           child: ContributionHeatmap(
             data: heatmapData,
-            weeks: 13, // ~3 months
+            // Uses default 15 weeks, centered on current week
             baseColor: Theme.of(context).colorScheme.primary,
             onDayTap: (date, count) {
-              _showDayDetails(context, date, count, trackProvider);
+              _showDayDetails(context, date, count, streakProvider);
             },
           ),
         );
@@ -192,23 +192,20 @@ class InsightsPage extends StatelessWidget {
 
   /// Aggregates all completed goals by date for the heatmap.
   /// Returns a map of normalized dates to goal counts.
-  Map<DateTime, int> _aggregateGoalsByDate(TrackProvider trackProvider) {
+  /// Uses StreakProvider's completedDates which is the source of truth.
+  Map<DateTime, int> _aggregateGoalsByDate(StreakProvider streakProvider) {
     final Map<DateTime, int> data = {};
 
-    for (final track in trackProvider.entries) {
-      for (final goal in track.goals) {
-        if (goal.isCompleted && goal.completedOn != null) {
-          // Normalize date to midnight
-          final date = DateTime(
-            goal.completedOn!.year,
-            goal.completedOn!.month,
-            goal.completedOn!.day,
-          );
+    // StreakProvider stores completed goals in a Map<DateTime, List<Goal>>
+    for (final entry in streakProvider.streak.completedDates.entries) {
+      final date = entry.key;
+      final goals = entry.value;
 
-          // Increment count for this date
-          data[date] = (data[date] ?? 0) + 1;
-        }
-      }
+      // Normalize date to midnight (should already be, but ensure consistency)
+      final normalizedDate = DateTime(date.year, date.month, date.day);
+
+      // Count the goals for this date
+      data[normalizedDate] = goals.length;
     }
 
     return data;
@@ -286,27 +283,12 @@ class InsightsPage extends StatelessWidget {
     BuildContext context,
     DateTime date,
     int count,
-    TrackProvider trackProvider,
+    StreakProvider streakProvider,
   ) {
-    // Get goals completed on this specific date
-    final goalsOnDay = <_GoalWithTrack>[];
-
-    for (final track in trackProvider.entries) {
-      for (final goal in track.goals) {
-        if (goal.isCompleted && goal.completedOn != null) {
-          final goalDate = DateTime(
-            goal.completedOn!.year,
-            goal.completedOn!.month,
-            goal.completedOn!.day,
-          );
-          final targetDate = DateTime(date.year, date.month, date.day);
-
-          if (goalDate == targetDate) {
-            goalsOnDay.add(_GoalWithTrack(goal: goal, trackTitle: track.title));
-          }
-        }
-      }
-    }
+    // Get goals completed on this specific date from StreakProvider
+    final normalizedDate = DateTime(date.year, date.month, date.day);
+    final goalsOnDay =
+        streakProvider.streak.completedDates[normalizedDate] ?? [];
 
     showModalBottomSheet(
       context: context,
@@ -373,43 +355,29 @@ class InsightsPage extends StatelessWidget {
                     ),
                   )
                 else
-                  ...goalsOnDay.map((item) {
+                  ...goalsOnDay.map((goal) {
                     return ListTile(
                       contentPadding: EdgeInsets.zero,
                       leading: Icon(
                         Icons.check_circle_rounded,
                         color: Colors.green,
                       ),
-                      title: Text(item.goal.title),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            item.trackTitle,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurface.withOpacity(0.5),
-                            ),
-                          ),
-                          if (item.goal.description.isNotEmpty) ...[
-                            const SizedBox(height: 4),
-                            Text(
-                              '"${item.goal.description}"',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontStyle: FontStyle.italic,
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurface.withOpacity(0.7),
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ],
-                      ),
+                      title: Text(goal.title),
+                      subtitle:
+                          goal.description.isNotEmpty
+                              ? Text(
+                                '"${goal.description}"',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontStyle: FontStyle.italic,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface.withOpacity(0.7),
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              )
+                              : null,
                     );
                   }).toList(),
               ],

@@ -117,7 +117,7 @@ class StreakProvider extends ChangeNotifier {
       NotiService().scheduleNotification(
         title: 'Keep it going!',
         body:
-            'Don’t forget to complete a goal today to keep your streak alive 🔥',
+            'Don\'t forget to complete a goal today to keep your streak alive 🔥',
         scheduledDate: scheduledDate,
       );
     }

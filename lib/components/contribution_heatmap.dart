@@ -6,11 +6,12 @@ import 'package:flutter/material.dart';
 /// - Rows represent days of the week (Mon-Sun)
 /// - Columns represent weeks
 /// - Cell color intensity indicates activity level (goals completed)
+/// - Current week is centered in the view
 class ContributionHeatmap extends StatelessWidget {
   /// Map of dates to goal counts. Keys should be normalized to midnight.
   final Map<DateTime, int> data;
 
-  /// Number of weeks to display (default: 13 weeks ≈ 3 months)
+  /// Number of weeks to display (default: 15 weeks, centered on current week)
   final int weeks;
 
   /// Base color for the heatmap intensity scale
@@ -28,7 +29,7 @@ class ContributionHeatmap extends StatelessWidget {
   const ContributionHeatmap({
     super.key,
     required this.data,
-    this.weeks = 13,
+    this.weeks = 15, // Odd number so current week is exactly centered
     this.baseColor = const Color(0xFF4CAF50), // Material Green
     this.onDayTap,
     this.cellSize = 14,
@@ -41,33 +42,24 @@ class ContributionHeatmap extends StatelessWidget {
     final emptyColor = isDarkMode ? Colors.grey.shade800 : Colors.grey.shade200;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // Main heatmap grid with horizontal scrolling
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          reverse: true, // Start from the right (most recent)
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Month labels row
-              _buildMonthLabels(context),
-              const SizedBox(height: 4),
+        // Month labels row
+        _buildMonthLabels(context),
+        const SizedBox(height: 4),
 
-              // Heatmap grid with day labels
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Day of week labels (Mon, Wed, Fri)
-                  _buildDayLabels(context),
-                  const SizedBox(width: 4),
+        // Heatmap grid with day labels (no scrolling)
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Day of week labels (Mon, Wed, Fri)
+            _buildDayLabels(context),
+            const SizedBox(width: 4),
 
-                  // The actual heatmap grid
-                  _buildHeatmapGrid(context, emptyColor),
-                ],
-              ),
-            ],
-          ),
+            // The actual heatmap grid
+            _buildHeatmapGrid(context, emptyColor),
+          ],
         ),
 
         const SizedBox(height: 12),
@@ -104,37 +96,35 @@ class ContributionHeatmap extends StatelessWidget {
       currentWeek++;
     }
 
-    // Build the month label row
-    return SizedBox(
-      height: 16,
-      child: Row(
-        children: [
-          // Spacer for day labels column
-          SizedBox(width: 28),
-          // Month labels positioned at their respective weeks
-          ...List.generate(weeks, (weekIndex) {
-            final monthLabel = months.firstWhere(
-              (m) => m.weekIndex == weekIndex,
-              orElse: () => _MonthLabel(name: '', weekIndex: -1),
-            );
-            return SizedBox(
-              width: cellSize + cellSpacing,
-              child:
-                  monthLabel.name.isNotEmpty
-                      ? Text(
-                        monthLabel.name,
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withOpacity(0.6),
-                        ),
-                      )
-                      : null,
-            );
-          }),
-        ],
-      ),
+    // Build the month label row (centered)
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // Spacer for day labels column
+        const SizedBox(width: 28),
+        // Month labels positioned at their respective weeks
+        ...List.generate(weeks, (weekIndex) {
+          final monthLabel = months.firstWhere(
+            (m) => m.weekIndex == weekIndex,
+            orElse: () => _MonthLabel(name: '', weekIndex: -1),
+          );
+          return SizedBox(
+            width: cellSize + cellSpacing,
+            child:
+                monthLabel.name.isNotEmpty
+                    ? Text(
+                      monthLabel.name,
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.6),
+                      ),
+                    )
+                    : null,
+          );
+        }),
+      ],
     );
   }
 
@@ -165,6 +155,7 @@ class ContributionHeatmap extends StatelessWidget {
   /// Builds the main heatmap grid of cells.
   Widget _buildHeatmapGrid(BuildContext context, Color emptyColor) {
     final today = DateTime.now();
+    final normalizedToday = _normalizeDate(today);
     final startDate = _getStartDate(today);
 
     return Row(
@@ -175,31 +166,36 @@ class ContributionHeatmap extends StatelessWidget {
             final cellDate = startDate.add(
               Duration(days: (weekIndex * 7) + dayIndex),
             );
+            final normalizedCellDate = _normalizeDate(cellDate);
 
-            // Don't show future dates
-            if (cellDate.isAfter(today)) {
-              return _buildCell(
-                context,
-                color: Colors.transparent,
-                date: cellDate,
-                count: 0,
-                isFuture: true,
-              );
-            }
+            // Check if this is a future date
+            final isFuture = normalizedCellDate.isAfter(normalizedToday);
 
             // Get the goal count for this date
-            final normalizedDate = _normalizeDate(cellDate);
-            final count = data[normalizedDate] ?? 0;
+            int count = 0;
+            if (!isFuture) {
+              for (final entry in data.entries) {
+                final dataDate = _normalizeDate(entry.key);
+                if (dataDate.year == normalizedCellDate.year &&
+                    dataDate.month == normalizedCellDate.month &&
+                    dataDate.day == normalizedCellDate.day) {
+                  count = entry.value;
+                  break;
+                }
+              }
+            }
 
             // Calculate color intensity based on count
-            final color = _getColorForCount(count, emptyColor);
+            // Future dates get empty color (shown but not interactive)
+            final color =
+                isFuture ? emptyColor : _getColorForCount(count, emptyColor);
 
             return _buildCell(
               context,
               color: color,
               date: cellDate,
               count: count,
-              isFuture: false,
+              isFuture: isFuture,
             );
           }),
         );
@@ -285,15 +281,26 @@ class ContributionHeatmap extends StatelessWidget {
 
   /// Calculates the start date for the heatmap grid.
   /// Returns the Monday of the first week to display.
+  /// The current week is centered in the grid.
   DateTime _getStartDate(DateTime today) {
-    // Go back [weeks] weeks from today
-    final daysBack = (weeks * 7) - 1;
-    final startDate = today.subtract(Duration(days: daysBack));
+    // Normalize today to midnight first
+    final normalizedToday = DateTime(today.year, today.month, today.day);
 
-    // Adjust to the nearest Monday (start of week)
+    // Find the Monday of the current week
     // DateTime weekday: 1 = Monday, 7 = Sunday
-    final daysToSubtract = startDate.weekday - 1;
-    return startDate.subtract(Duration(days: daysToSubtract));
+    final daysFromMonday = normalizedToday.weekday - 1;
+    final thisMonday = normalizedToday.subtract(Duration(days: daysFromMonday));
+
+    // Calculate weeks before and after the current week
+    // Current week should be in the middle
+    final weeksBeforeCenter = weeks ~/ 2;
+
+    // Go back weeksBeforeCenter weeks from this Monday to get the start date
+    final startDate = thisMonday.subtract(
+      Duration(days: weeksBeforeCenter * 7),
+    );
+
+    return startDate;
   }
 
   /// Normalizes a DateTime to midnight (removes time component).

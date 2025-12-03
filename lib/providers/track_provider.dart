@@ -165,6 +165,13 @@ class TrackProvider extends ChangeNotifier {
   // Separate method to handle goal state updates
   void setGoalCompletionStatus(Goal goal, bool isCompleted) {
     goal.isCompleted = isCompleted;
+    
+    // Set or clear the completion date
+    if (isCompleted) {
+      goal.completedOn = DateTime.now();
+    } else {
+      goal.completedOn = null;
+    }
   }
 
   void reorderGoal(int oldIndex, int newIndex) {
