@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 /// - Columns represent weeks
 /// - Cell color intensity indicates activity level (goals completed)
 /// - Current week is centered in the view
+/// - Grid fills the available width
 class ContributionHeatmap extends StatelessWidget {
   /// Map of dates to goal counts. Keys should be normalized to midnight.
   final Map<DateTime, int> data;
@@ -20,11 +21,8 @@ class ContributionHeatmap extends StatelessWidget {
   /// Callback when a day cell is tapped
   final void Function(DateTime date, int count)? onDayTap;
 
-  /// Size of each cell in the grid
-  final double cellSize;
-
-  /// Spacing between cells
-  final double cellSpacing;
+  /// Width reserved for day labels on the left
+  static const double _dayLabelWidth = 28.0;
 
   const ContributionHeatmap({
     super.key,
@@ -32,8 +30,6 @@ class ContributionHeatmap extends StatelessWidget {
     this.weeks = 15, // Odd number so current week is exactly centered
     this.baseColor = const Color(0xFF4CAF50), // Material Green
     this.onDayTap,
-    this.cellSize = 14,
-    this.cellSpacing = 3,
   });
 
   @override
@@ -41,37 +37,58 @@ class ContributionHeatmap extends StatelessWidget {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final emptyColor = isDarkMode ? Colors.grey.shade800 : Colors.grey.shade200;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        // Month labels row
-        _buildMonthLabels(context),
-        const SizedBox(height: 4),
+    // Use LayoutBuilder to get available width and calculate cell size
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Calculate cell size to fill available width
+        // Available width = total width - day label width
+        final availableWidth = constraints.maxWidth - _dayLabelWidth;
 
-        // Heatmap grid with day labels (no scrolling)
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        // Each column gets equal width
+        final columnWidth = availableWidth / weeks;
+
+        // Cell size with some spacing (80% cell, 20% spacing)
+        final cellSize = columnWidth * 0.8;
+        final cellSpacing = columnWidth * 0.2;
+
+        return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Day of week labels (Mon, Wed, Fri)
-            _buildDayLabels(context),
-            const SizedBox(width: 4),
+            // Month labels row
+            _buildMonthLabels(context, columnWidth),
+            const SizedBox(height: 4),
 
-            // The actual heatmap grid
-            _buildHeatmapGrid(context, emptyColor),
+            // Heatmap grid with day labels
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Day of week labels (Mon, Wed, Fri)
+                _buildDayLabels(context, cellSize, cellSpacing),
+
+                // The actual heatmap grid (fills remaining width)
+                Expanded(
+                  child: _buildHeatmapGrid(
+                    context,
+                    emptyColor,
+                    cellSize,
+                    cellSpacing,
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 12),
+
+            // Legend showing color scale
+            _buildLegend(context, emptyColor),
           ],
-        ),
-
-        const SizedBox(height: 12),
-
-        // Legend showing color scale
-        _buildLegend(context, emptyColor),
-      ],
+        );
+      },
     );
   }
 
   /// Builds the month labels that appear above the heatmap grid.
-  Widget _buildMonthLabels(BuildContext context) {
+  Widget _buildMonthLabels(BuildContext context, double columnWidth) {
     final today = DateTime.now();
     final startDate = _getStartDate(today);
     final months = <_MonthLabel>[];
@@ -96,108 +113,125 @@ class ContributionHeatmap extends StatelessWidget {
       currentWeek++;
     }
 
-    // Build the month label row (centered)
+    // Build the month label row
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         // Spacer for day labels column
-        const SizedBox(width: 28),
+        const SizedBox(width: _dayLabelWidth),
         // Month labels positioned at their respective weeks
-        ...List.generate(weeks, (weekIndex) {
-          final monthLabel = months.firstWhere(
-            (m) => m.weekIndex == weekIndex,
-            orElse: () => _MonthLabel(name: '', weekIndex: -1),
-          );
-          return SizedBox(
-            width: cellSize + cellSpacing,
-            child:
-                monthLabel.name.isNotEmpty
-                    ? Text(
-                      monthLabel.name,
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withOpacity(0.6),
-                      ),
-                    )
-                    : null,
-          );
-        }),
+        Expanded(
+          child: Row(
+            children: List.generate(weeks, (weekIndex) {
+              final monthLabel = months.firstWhere(
+                (m) => m.weekIndex == weekIndex,
+                orElse: () => _MonthLabel(name: '', weekIndex: -1),
+              );
+              return Expanded(
+                child:
+                    monthLabel.name.isNotEmpty
+                        ? Text(
+                          monthLabel.name,
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withOpacity(0.6),
+                          ),
+                        )
+                        : const SizedBox.shrink(),
+              );
+            }),
+          ),
+        ),
       ],
     );
   }
 
   /// Builds the day of week labels (Mon, Wed, Fri) on the left side.
-  Widget _buildDayLabels(BuildContext context) {
+  Widget _buildDayLabels(
+    BuildContext context,
+    double cellSize,
+    double cellSpacing,
+  ) {
     // Only show Mon, Wed, Fri to save space (like GitHub)
-    final labels = ['', 'Mon', '', 'Wed', '', 'Fri', ''];
+    final labels = ['', 'M', '', 'W', '', 'F', ''];
 
-    return Column(
-      children: List.generate(7, (index) {
-        return Container(
-          height: cellSize + cellSpacing,
-          width: 24,
-          alignment: Alignment.centerRight,
-          padding: const EdgeInsets.only(right: 4),
-          child: Text(
-            labels[index],
-            style: TextStyle(
-              fontSize: 9,
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+    return SizedBox(
+      width: _dayLabelWidth,
+      child: Column(
+        children: List.generate(7, (index) {
+          return Container(
+            height: cellSize + cellSpacing,
+            alignment: Alignment.centerRight,
+            padding: const EdgeInsets.only(right: 4),
+            child: Text(
+              labels[index],
+              style: TextStyle(
+                fontSize: 9,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              ),
             ),
-          ),
-        );
-      }),
+          );
+        }),
+      ),
     );
   }
 
   /// Builds the main heatmap grid of cells.
-  Widget _buildHeatmapGrid(BuildContext context, Color emptyColor) {
+  Widget _buildHeatmapGrid(
+    BuildContext context,
+    Color emptyColor,
+    double cellSize,
+    double cellSpacing,
+  ) {
     final today = DateTime.now();
     final normalizedToday = _normalizeDate(today);
     final startDate = _getStartDate(today);
 
     return Row(
       children: List.generate(weeks, (weekIndex) {
-        return Column(
-          children: List.generate(7, (dayIndex) {
-            // Calculate the date for this cell
-            final cellDate = startDate.add(
-              Duration(days: (weekIndex * 7) + dayIndex),
-            );
-            final normalizedCellDate = _normalizeDate(cellDate);
+        return Expanded(
+          child: Column(
+            children: List.generate(7, (dayIndex) {
+              // Calculate the date for this cell
+              final cellDate = startDate.add(
+                Duration(days: (weekIndex * 7) + dayIndex),
+              );
+              final normalizedCellDate = _normalizeDate(cellDate);
 
-            // Check if this is a future date
-            final isFuture = normalizedCellDate.isAfter(normalizedToday);
+              // Check if this is a future date
+              final isFuture = normalizedCellDate.isAfter(normalizedToday);
 
-            // Get the goal count for this date
-            int count = 0;
-            if (!isFuture) {
-              for (final entry in data.entries) {
-                final dataDate = _normalizeDate(entry.key);
-                if (dataDate.year == normalizedCellDate.year &&
-                    dataDate.month == normalizedCellDate.month &&
-                    dataDate.day == normalizedCellDate.day) {
-                  count = entry.value;
-                  break;
+              // Get the goal count for this date
+              int count = 0;
+              if (!isFuture) {
+                for (final entry in data.entries) {
+                  final dataDate = _normalizeDate(entry.key);
+                  if (dataDate.year == normalizedCellDate.year &&
+                      dataDate.month == normalizedCellDate.month &&
+                      dataDate.day == normalizedCellDate.day) {
+                    count = entry.value;
+                    break;
+                  }
                 }
               }
-            }
 
-            // Calculate color intensity based on count
-            // Future dates get empty color (shown but not interactive)
-            final color =
-                isFuture ? emptyColor : _getColorForCount(count, emptyColor);
+              // Calculate color intensity based on count
+              // Future dates get empty color (shown but not interactive)
+              final color =
+                  isFuture ? emptyColor : _getColorForCount(count, emptyColor);
 
-            return _buildCell(
-              context,
-              color: color,
-              date: cellDate,
-              count: count,
-              isFuture: isFuture,
-            );
-          }),
+              return _buildCell(
+                context,
+                color: color,
+                date: cellDate,
+                count: count,
+                isFuture: isFuture,
+                cellSize: cellSize,
+                cellSpacing: cellSpacing,
+              );
+            }),
+          ),
         );
       }),
     );
@@ -210,6 +244,8 @@ class ContributionHeatmap extends StatelessWidget {
     required DateTime date,
     required int count,
     required bool isFuture,
+    required double cellSize,
+    required double cellSpacing,
   }) {
     return GestureDetector(
       onTap: isFuture ? null : () => onDayTap?.call(date, count),
@@ -219,12 +255,13 @@ class ContributionHeatmap extends StatelessWidget {
                 ? ''
                 : '$count goal${count == 1 ? '' : 's'} on ${_formatDate(date)}',
         child: Container(
-          width: cellSize,
-          height: cellSize,
-          margin: EdgeInsets.all(cellSpacing / 2),
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(3),
+          height: cellSize + cellSpacing,
+          padding: EdgeInsets.all(cellSpacing / 2),
+          child: Container(
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(3),
+            ),
           ),
         ),
       ),
