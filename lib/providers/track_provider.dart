@@ -96,7 +96,26 @@ class TrackProvider extends ChangeNotifier {
   }
 
   // Delete a Track Entry
-  Future<void> deleteTrack(String id) async {
+  Future<void> deleteTrack(String id, StreakProvider streakProvider) async {
+    // Find the track before deleting
+    final trackIndex = _tracks.indexWhere((t) => t.id == id);
+    if (trackIndex != -1) {
+      final track = _tracks[trackIndex];
+
+      // Remove completed goals from streak
+      for (final goal in track.goals) {
+        if (goal.isCompleted && goal.completedOn != null) {
+          final completedDate = DateTime(
+            goal.completedOn!.year,
+            goal.completedOn!.month,
+            goal.completedOn!.day,
+          );
+          streakProvider.unmarkGoalCompleted(goal, completedDate);
+        }
+      }
+      streakProvider.saveStreak();
+    }
+
     await _db.deleteEntry(id);
     _tracks.removeWhere((entry) => entry.id == id);
 
@@ -112,11 +131,24 @@ class TrackProvider extends ChangeNotifier {
   }
 
   // GOAL RELATED METHODS
-  void deleteGoal(int index) {
+  void deleteGoal(int index, StreakProvider streakProvider) {
     // Get the track for which the goal is to be deleted
     final track = _tracks.firstWhere((t) => t.id == _selectedTrackId);
 
     if (index >= 0 && index < track.goals.length) {
+      final goal = track.goals[index];
+
+      // Remove from streak if the goal was completed
+      if (goal.isCompleted && goal.completedOn != null) {
+        final completedDate = DateTime(
+          goal.completedOn!.year,
+          goal.completedOn!.month,
+          goal.completedOn!.day,
+        );
+        streakProvider.unmarkGoalCompleted(goal, completedDate);
+        streakProvider.saveStreak();
+      }
+
       // Remove the goal from the track
       track.goals.removeAt(index);
 

@@ -88,6 +88,9 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
                                 }
 
                                 if (action == 'delete') {
+                                  final streakProvider = Provider.of<StreakProvider>(context, listen: false);
+                                  final willAffectStreak = streakProvider.wouldDeletingGoalsAffectStreak(track.goals);
+                                  
                                   final controller = TextEditingController();
                                   final finalConfirmed = await showDialog<bool>(
                                     context: context,
@@ -108,6 +111,29 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
                                                   labelText: 'Track name',
                                                 ),
                                               ),
+                                              if (willAffectStreak) ...[
+                                                SizedBox(height: 12),
+                                                Container(
+                                                  padding: EdgeInsets.all(12),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.orange.withOpacity(0.1),
+                                                    borderRadius: BorderRadius.circular(8),
+                                                    border: Border.all(color: Colors.orange),
+                                                  ),
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(Icons.warning_amber_rounded, color: Colors.orange),
+                                                      SizedBox(width: 8),
+                                                      Expanded(
+                                                        child: Text(
+                                                          'This track contains your only completed goal(s) for today. Deleting it will decrement your streak!',
+                                                          style: TextStyle(color: Colors.orange[800]),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
                                             ],
                                           ),
                                           actions: [
@@ -150,7 +176,7 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
                                   );
 
                                   if (finalConfirmed == true) {
-                                    provider.deleteTrack(track.id);
+                                    provider.deleteTrack(track.id, streakProvider);
                                     Future.microtask(() {
                                       Navigator.pop(context);
                                     });

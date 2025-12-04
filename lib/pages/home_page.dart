@@ -297,13 +297,44 @@ class _HomePageState extends State<HomePage> {
                       }
                     }
                   } else if (value == 'delete') {
+                    final willAffectStreak = streakProvider.wouldDeletingGoalAffectStreak(goal);
+                    
                     final shouldDelete = await showDialog<bool>(
                       context: context,
                       builder:
                           (context) => AlertDialog(
                             title: Text('Delete Goal?'),
-                            content: Text(
-                              'Are you sure you want to delete this goal? This action cannot be undone.',
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Are you sure you want to delete this goal? This action cannot be undone.',
+                                ),
+                                if (willAffectStreak) ...[
+                                  SizedBox(height: 12),
+                                  Container(
+                                    padding: EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.orange.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(color: Colors.orange),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.warning_amber_rounded, color: Colors.orange),
+                                        SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            'This is your only completed goal for today. Deleting it will decrement your streak!',
+                                            style: TextStyle(color: Colors.orange[800]),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ],
                             ),
                             actions: [
                               TextButton(
@@ -321,7 +352,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                     );
                     if (shouldDelete == true) {
-                      trackProvider.deleteGoal(index);
+                      trackProvider.deleteGoal(index, streakProvider);
                     }
                   }
                 },

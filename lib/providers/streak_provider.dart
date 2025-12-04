@@ -186,4 +186,58 @@ class StreakProvider extends ChangeNotifier {
     final goalsToday = _streak.completedDates[todayDate];
     return goalsToday != null && goalsToday.isNotEmpty;
   }
+
+  /// Check if deleting a specific goal would decrement the streak
+  /// Returns true if this goal is the last completed goal for today
+  bool wouldDeletingGoalAffectStreak(Goal goal) {
+    if (!goal.isCompleted || goal.completedOn == null) return false;
+
+    final completedDate = DateTime(
+      goal.completedOn!.year,
+      goal.completedOn!.month,
+      goal.completedOn!.day,
+    );
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    // Only affects streak if completed today
+    if (completedDate != today) return false;
+
+    final goalsToday = _streak.completedDates[today];
+    if (goalsToday == null) return false;
+
+    // Check if this is the last goal for today
+    return goalsToday.length == 1 && 
+           goalsToday.any((g) => g.title == goal.title);
+  }
+
+  /// Check if deleting a list of goals would decrement the streak
+  /// Returns true if all completed goals for today would be removed
+  bool wouldDeletingGoalsAffectStreak(List<Goal> goals) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    final goalsToday = _streak.completedDates[today];
+    if (goalsToday == null || goalsToday.isEmpty) return false;
+
+    // Get titles of goals completed today from the list being deleted
+    final goalsBeingDeletedTitles = goals
+        .where((g) => g.isCompleted && g.completedOn != null)
+        .where((g) {
+          final completedDate = DateTime(
+            g.completedOn!.year,
+            g.completedOn!.month,
+            g.completedOn!.day,
+          );
+          return completedDate == today;
+        })
+        .map((g) => g.title)
+        .toSet();
+
+    // Check if all goals completed today are in the deletion list
+    final allGoalsTodayTitles = goalsToday.map((g) => g.title).toSet();
+    return allGoalsTodayTitles.difference(goalsBeingDeletedTitles).isEmpty &&
+           goalsBeingDeletedTitles.isNotEmpty;
+  }
 }
