@@ -2,42 +2,196 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../components/contribution_heatmap.dart';
+import '../components/insights_share_card.dart';
+import '../components/share_theme_picker.dart';
 import '../models/goal.dart';
 import '../providers/track_provider.dart';
 import '../providers/streak_provider.dart';
+import '../services/share_image_service.dart';
 
 /// The Insights page displays a learning journal with:
 /// - A contribution heatmap showing goal completion over time
 /// - Summary statistics about user progress
 /// - (Future) Timeline of completed goals with reflections
-class InsightsPage extends StatelessWidget {
+class InsightsPage extends StatefulWidget {
   const InsightsPage({super.key});
+
+  @override
+  State<InsightsPage> createState() => _InsightsPageState();
+}
+
+class _InsightsPageState extends State<InsightsPage> {
+  final GlobalKey _shareCardKey = GlobalKey();
+  ShareCardTheme _currentTheme = ShareCardTheme.dark;
+  bool _isCapturing = false;
+
+  /// Handles the share button press - shows theme picker and captures image
+  Future<void> _onSharePressed() async {
+    final selectedTheme = await ShareThemePicker.show(context);
+    if (selectedTheme == null || !mounted) return;
+
+    setState(() {
+      _currentTheme = selectedTheme;
+      _isCapturing = true;
+    });
+
+    // Wait for the widget to rebuild with the new theme
+    await Future.delayed(const Duration(milliseconds: 150));
+
+    try {
+      await ShareImageService.captureAndShare(
+        _shareCardKey,
+        shareText: 'Check out my learning progress! 🚀 #ProgressPal #LearningJourney',
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Failed to share image. Please try again.'),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isCapturing = false);
+      }
+    }
+  }
+
+  /// Builds the share card data from providers
+  _ShareCardData _buildShareCardData(
+    TrackProvider trackProvider,
+    StreakProvider streakProvider,
+  ) {
+    final stats = _calculateStats(trackProvider, streakProvider);
+    final topTracks = _getTopTracks(trackProvider);
+
+    return _ShareCardData(
+      totalGoalsCompleted: stats.totalCompleted,
+      currentStreak: stats.currentStreak,
+      longestStreak: stats.highestStreak,
+      goalsThisWeek: stats.goalsThisWeek,
+      topTracks: topTracks,
+    );
+  }
+
+  /// Gets the top tracks by completed goals count
+  List<TrackSummary> _getTopTracks(TrackProvider trackProvider) {
+    final trackStats = <String, int>{};
+    final trackColors = <String, Color>{};
+
+    // Predefined colors for tracks
+    const colors = [
+      Color(0xFF6366F1), // Indigo
+      Color(0xFF8B5CF6), // Purple
+      Color(0xFFEC4899), // Pink
+      Color(0xFF14B8A6), // Teal
+      Color(0xFFF97316), // Orange
+      Color(0xFF22C55E), // Green
+    ];
+
+    var colorIndex = 0;
+    for (final track in trackProvider.entries) {
+      final completedCount = track.goals.where((g) => g.isCompleted).length;
+      if (completedCount > 0) {
+        trackStats[track.title] = completedCount;
+        trackColors[track.title] = colors[colorIndex % colors.length];
+        colorIndex++;
+      }
+    }
+
+    // Sort by completed count and take top 3
+    final sortedTracks = trackStats.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    return sortedTracks
+        .take(3)
+        .map((e) => TrackSummary(
+              name: e.key,
+              completedGoals: e.value,
+              color: trackColors[e.key]!,
+            ))
+        .toList();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Insights'), centerTitle: true),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Section: Contribution Heatmap
-              _buildHeatmapSection(context),
-
-              const SizedBox(height: 24),
-
-              // Section: Stats Summary
-              _buildStatsSummarySection(context),
-
-              const SizedBox(height: 24),
-
-              // Section: Recent Reflections (placeholder for future)
-              _buildRecentReflectionsSection(context),
-            ],
+      appBar: AppBar(
+        title: const Text('Insights'),
+        centerTitle: true,
+        actions: [
+          Consumer2<TrackProvider, StreakProvider>(
+            builder: (context, trackProvider, streakProvider, child) {
+              return IconButton(
+                onPressed: _isCapturing ? null : _onSharePressed,
+                tooltip: 'Share Insights',
+                icon: _isCapturing
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.share_rounded),
+              );
+            },
           ),
-        ),
+        ],
+      ),
+      body: Consumer2<TrackProvider, StreakProvider>(
+        builder: (context, trackProvider, streakProvider, child) {
+          final shareData = _buildShareCardData(trackProvider, streakProvider);
+
+          return Stack(
+            children: [
+              // Main content
+              SafeArea(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Section: Contribution Heatmap
+                      _buildHeatmapSection(context),
+
+                      const SizedBox(height: 24),
+
+                      // Section: Stats Summary
+                      _buildStatsSummarySection(context),
+
+                      const SizedBox(height: 24),
+
+                      // Section: Recent Reflections (placeholder for future)
+                      _buildRecentReflectionsSection(context),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Hidden share card for capture (positioned off-screen)
+              Positioned(
+                left: -2000,
+                top: 0,
+                child: RepaintBoundary(
+                  key: _shareCardKey,
+                  child: InsightsShareCard(
+                    totalGoalsCompleted: shareData.totalGoalsCompleted,
+                    currentStreak: shareData.currentStreak,
+                    longestStreak: shareData.longestStreak,
+                    goalsThisWeek: shareData.goalsThisWeek,
+                    topTracks: shareData.topTracks,
+                    theme: _currentTheme,
+                    generatedAt: DateTime.now(),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -652,4 +806,21 @@ class _GoalWithTrack {
   final String trackTitle;
 
   _GoalWithTrack({required this.goal, required this.trackTitle});
+}
+
+/// Helper class to hold share card data.
+class _ShareCardData {
+  final int totalGoalsCompleted;
+  final int currentStreak;
+  final int longestStreak;
+  final int goalsThisWeek;
+  final List<TrackSummary> topTracks;
+
+  _ShareCardData({
+    required this.totalGoalsCompleted,
+    required this.currentStreak,
+    required this.longestStreak,
+    required this.goalsThisWeek,
+    required this.topTracks,
+  });
 }
