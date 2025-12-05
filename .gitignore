@@ -52,3 +52,4 @@ lib/secrets/secrets.dart
 /android/key.properties
 upload_certificate.pem
 android/app/progresspal-upload_certificate.pem
+FUTURE_FEATURE_PLAN.md
