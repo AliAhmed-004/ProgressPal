@@ -533,7 +533,7 @@ class _InsightsPageState extends State<InsightsPage> {
                               )
                               : null,
                     );
-                  }).toList(),
+                  }),
               ],
             ),
           ),

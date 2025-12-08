@@ -94,6 +94,11 @@ class _HomePageState extends State<HomePage> {
         spacing: 10,
         children: [
           SpeedDialChild(
+            label: "Switch Track",
+            child: Icon(Icons.swap_horiz_rounded),
+            onTap: () => showTrackSelectorBottomSheet(context),
+          ),
+          SpeedDialChild(
             label: "New Track",
             child: Icon(Icons.add_rounded),
             onTap: () => showAddTrackDialog(context),
@@ -134,6 +139,303 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
+    );
+  }
+
+  void showTrackSelectorBottomSheet(BuildContext context) {
+    final provider = Provider.of<TrackProvider>(context, listen: false);
+    final tracks = provider.entries;
+    final sortedTracks = [...tracks]
+      ..sort((a, b) => b.date.compareTo(a.date)); // Most recent first
+
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Text(
+                  'Select Track',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+              ),
+              SizedBox(height: 8),
+              Flexible(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: sortedTracks.length,
+                  itemBuilder: (context, index) {
+                    final track = sortedTracks[index];
+                    final isSelected = track.id == provider.selectedTrackId;
+
+                    return Container(
+                      margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                      decoration: BoxDecoration(
+                        color:
+                            isSelected
+                                ? Theme.of(
+                                  context,
+                                ).colorScheme.primary.withOpacity(0.1)
+                                : Colors.transparent,
+                        borderRadius: BorderRadius.circular(12),
+                        border:
+                            isSelected
+                                ? Border.all(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.primary.withOpacity(0.3),
+                                  width: 1.5,
+                                )
+                                : null,
+                      ),
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor:
+                              isSelected
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Colors.grey[300],
+                          child: Icon(
+                            Icons.track_changes,
+                            color: isSelected ? Colors.white : Colors.grey[600],
+                          ),
+                        ),
+                        title: Text(
+                          track.title,
+                          style: TextStyle(
+                            fontWeight:
+                                isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                          ),
+                        ),
+                        subtitle: Text('${track.goals.length} goals'),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              '${track.completionPercentage.toInt()}%',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color:
+                                    isSelected
+                                        ? Theme.of(context).colorScheme.primary
+                                        : null,
+                              ),
+                            ),
+                            PopupMenuButton<String>(
+                              icon: Icon(Icons.more_vert),
+                              onSelected: (action) async {
+                                if (action == 'rename') {
+                                  final controller = TextEditingController(
+                                    text: track.title,
+                                  );
+                                  final confirmed = await showDialog<bool>(
+                                    context: context,
+                                    builder:
+                                        (_) => AlertDialog(
+                                          title: Text('Rename Track'),
+                                          content: TextField(
+                                            controller: controller,
+                                            decoration: InputDecoration(
+                                              labelText: 'New track name',
+                                            ),
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed:
+                                                  () => Navigator.pop(
+                                                    context,
+                                                    false,
+                                                  ),
+                                              child: Text('Cancel'),
+                                            ),
+                                            TextButton(
+                                              onPressed:
+                                                  () => Navigator.pop(
+                                                    context,
+                                                    true,
+                                                  ),
+                                              child: Text('Save'),
+                                            ),
+                                          ],
+                                        ),
+                                  );
+
+                                  if (confirmed == true &&
+                                      controller.text.trim().isNotEmpty) {
+                                    provider.updateTrackTitle(
+                                      track.id,
+                                      controller.text,
+                                    );
+                                    Navigator.pop(
+                                      context,
+                                    ); // Close bottom sheet
+                                  }
+                                }
+
+                                if (action == 'delete') {
+                                  final streakProvider =
+                                      Provider.of<StreakProvider>(
+                                        context,
+                                        listen: false,
+                                      );
+                                  final willAffectStreak = streakProvider
+                                      .wouldDeletingGoalsAffectStreak(
+                                        track.goals,
+                                      );
+
+                                  final controller = TextEditingController();
+                                  final finalConfirmed = await showDialog<bool>(
+                                    context: context,
+                                    builder:
+                                        (context) => AlertDialog(
+                                          title: Text('Type to Confirm'),
+                                          content: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                'To prevent accidental deletion of the track, type its name for confirmation:\n\n"${track.title}"',
+                                              ),
+                                              SizedBox(height: 12),
+                                              TextField(
+                                                controller: controller,
+                                                decoration: InputDecoration(
+                                                  border: OutlineInputBorder(),
+                                                  labelText: 'Track name',
+                                                ),
+                                              ),
+                                              if (willAffectStreak) ...[
+                                                SizedBox(height: 12),
+                                                Container(
+                                                  padding: EdgeInsets.all(12),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.orange
+                                                        .withOpacity(0.1),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          8,
+                                                        ),
+                                                    border: Border.all(
+                                                      color: Colors.orange,
+                                                    ),
+                                                  ),
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons
+                                                            .warning_amber_rounded,
+                                                        color: Colors.orange,
+                                                      ),
+                                                      SizedBox(width: 8),
+                                                      Expanded(
+                                                        child: Text(
+                                                          'This track contains your only completed goal(s) for today. Deleting it will decrement your streak!',
+                                                          style: TextStyle(
+                                                            color:
+                                                                Colors
+                                                                    .orange[800],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ],
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed:
+                                                  () => Navigator.pop(
+                                                    context,
+                                                    false,
+                                                  ),
+                                              child: Text('Cancel'),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
+                                                final input =
+                                                    controller.text.trim();
+                                                if (input == track.title) {
+                                                  Navigator.pop(context, true);
+                                                } else {
+                                                  Navigator.pop(context, false);
+                                                  ScaffoldMessenger.of(
+                                                    context,
+                                                  ).showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                        'Track name did not match. Deletion cancelled.',
+                                                      ),
+                                                    ),
+                                                  );
+                                                }
+                                              },
+                                              child: Text(
+                                                'Confirm Delete',
+                                                style: TextStyle(
+                                                  color: Colors.red,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                  );
+
+                                  if (finalConfirmed == true) {
+                                    provider.deleteTrack(
+                                      track.id,
+                                      streakProvider,
+                                    );
+                                    Navigator.pop(
+                                      context,
+                                    ); // Close bottom sheet
+                                  }
+                                }
+                              },
+                              itemBuilder:
+                                  (_) => [
+                                    PopupMenuItem(
+                                      value: 'rename',
+                                      child: Text('Rename'),
+                                    ),
+                                    PopupMenuItem(
+                                      value: 'delete',
+                                      child: Text(
+                                        'Delete',
+                                        style: TextStyle(
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.error,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                            ),
+                          ],
+                        ),
+                        onTap: () {
+                          provider.selectTrack(track.id);
+                          Navigator.pop(context);
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -297,8 +599,9 @@ class _HomePageState extends State<HomePage> {
                       }
                     }
                   } else if (value == 'delete') {
-                    final willAffectStreak = streakProvider.wouldDeletingGoalAffectStreak(goal);
-                    
+                    final willAffectStreak = streakProvider
+                        .wouldDeletingGoalAffectStreak(goal);
+
                     final shouldDelete = await showDialog<bool>(
                       context: context,
                       builder:
@@ -322,12 +625,17 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                     child: Row(
                                       children: [
-                                        Icon(Icons.warning_amber_rounded, color: Colors.orange),
+                                        Icon(
+                                          Icons.warning_amber_rounded,
+                                          color: Colors.orange,
+                                        ),
                                         SizedBox(width: 8),
                                         Expanded(
                                           child: Text(
                                             'This is your only completed goal for today. Deleting it will decrement your streak!',
-                                            style: TextStyle(color: Colors.orange[800]),
+                                            style: TextStyle(
+                                              color: Colors.orange[800],
+                                            ),
                                           ),
                                         ),
                                       ],
