@@ -97,63 +97,50 @@ class CustomWeeklyCalendar extends StatelessWidget {
                         const SizedBox(height: 8),
 
                         // Circular date container
-                        GestureDetector(
-                          onTap: () {
-                            _showCompletedGoalsBottomSheet(
-                              context,
-                              completedDates[DateTime(
-                                    day.year,
-                                    day.month,
-                                    day.day,
-                                  )] ??
-                                  [],
-                            );
-                          },
-                          child: Container(
-                            width: 40, // Circular size
-                            height: 40, // Circular size
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle, // Ensures perfect circle
-                              border: Border.all(
-                                width: 2,
-                                color:
-                                    isToday
-                                        ? (isStreakContinued
-                                            ? Color(
-                                              0xff1bfc9e,
-                                            ) // Red for streak not completed
-                                            : Color(
-                                              0xffa70b0b,
-                                            )) // Blue-green for for completed
-                                        : colorScheme.onSurface.withValues(
-                                          alpha: 0.5,
-                                        ),
-                              ),
+                        Container(
+                          width: 40, // Circular size
+                          height: 40, // Circular size
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle, // Ensures perfect circle
+                            border: Border.all(
+                              width: 2,
+                              color:
+                                  isToday
+                                      ? (isStreakContinued
+                                          ? Color(
+                                            0xff1bfc9e,
+                                          ) // Red for streak not completed
+                                          : Color(
+                                            0xffa70b0b,
+                                          )) // Blue-green for for completed
+                                      : colorScheme.onSurface.withValues(
+                                        alpha: 0.5,
+                                      ),
+                            ),
+                            color:
+                                isStreakContinued
+                                    ? (isDarkMode
+                                        ? Color(
+                                          0xffffc300,
+                                        ) // Yellow for streak in dark mode
+                                        : Color(
+                                          0xff82b1ff,
+                                        )) // Light blue for streak in light mode
+                                    : Colors.transparent,
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            "${day.day}", // Numeric day
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
                               color:
                                   isStreakContinued
                                       ? (isDarkMode
-                                          ? Color(
-                                            0xffffc300,
-                                          ) // Yellow for streak in dark mode
-                                          : Color(
-                                            0xff82b1ff,
-                                          )) // Light blue for streak in light mode
-                                      : Colors.transparent,
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              "${day.day}", // Numeric day
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color:
-                                    isStreakContinued
-                                        ? (isDarkMode
-                                            ? Colors.black
-                                            : Colors.white)
-                                        : colorScheme
-                                            .onSurface, // Default text color
-                              ),
+                                          ? Colors.black
+                                          : Colors.white)
+                                      : colorScheme
+                                          .onSurface, // Default text color
                             ),
                           ),
                         ),
