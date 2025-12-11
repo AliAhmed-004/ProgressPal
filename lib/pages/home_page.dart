@@ -86,40 +86,47 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: CustomAppbar(),
-      floatingActionButton: SpeedDial(
-        animatedIcon: AnimatedIcons.menu_close,
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        overlayColor: Colors.black,
-        overlayOpacity: 0.3,
-        spacing: 10,
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          SpeedDialChild(
-            label: "Switch Track",
-            child: Icon(Icons.swap_horiz_rounded),
-            onTap: () => showTrackSelectorBottomSheet(context),
-          ),
-          SpeedDialChild(
-            label: "New Track",
-            child: Icon(Icons.add_rounded),
-            onTap: () => showAddTrackDialog(context),
-          ),
-          SpeedDialChild(
-            label: "Insights",
-            child: Icon(Icons.insights_rounded),
-            onTap:
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const InsightsPage()),
-                ),
-          ),
-          SpeedDialChild(
-            label: "Pomodoro",
-            child: Icon(Icons.timer_rounded),
-            onTap:
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => PomodoroScreen()),
-                ),
+          SpeedDial(
+            animatedIcon: AnimatedIcons.menu_close,
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            overlayColor: Colors.black,
+            overlayOpacity: 0.3,
+            spacing: 10,
+            children: [
+              SpeedDialChild(
+                label: "Switch Track",
+                child: Icon(Icons.track_changes_rounded),
+                onTap: () => showTrackSelectorBottomSheet(context),
+              ),
+              SpeedDialChild(
+                label: "New Track",
+                child: Icon(Icons.add_rounded),
+                onTap: () => showAddTrackDialog(context),
+              ),
+              SpeedDialChild(
+                label: "Insights",
+                child: Icon(Icons.insights_rounded),
+                onTap:
+                    () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const InsightsPage(),
+                      ),
+                    ),
+              ),
+              SpeedDialChild(
+                label: "Pomodoro",
+                child: Icon(Icons.timer_rounded),
+                onTap:
+                    () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => PomodoroScreen()),
+                    ),
+              ),
+            ],
           ),
         ],
       ),
