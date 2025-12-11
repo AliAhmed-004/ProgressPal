@@ -154,7 +154,8 @@ class ContributionHeatmap extends StatelessWidget {
     double cellSpacing,
   ) {
     // Only show Mon, Wed, Fri to save space (like GitHub)
-    final labels = ['', 'M', '', 'W', '', 'F', ''];
+    // Order: Mon(0), Tue(1), Wed(2), Thu(3), Fri(4), Sat(5), Sun(6)
+    final labels = ['M', '', 'W', '', 'F', '', 'S'];
 
     return SizedBox(
       width: _dayLabelWidth,
