@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:progresspal/providers/streak_provider.dart';
 import 'package:provider/provider.dart';
 
-import '../models/goal.dart';
-
 class CustomWeeklyCalendar extends StatelessWidget {
   const CustomWeeklyCalendar({super.key});
 
