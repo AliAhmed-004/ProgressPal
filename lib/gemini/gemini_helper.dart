@@ -22,8 +22,8 @@ class GeminiGoalGenerator {
   String _buildPrompt(String trackTitle, List<String>? existingGoals) {
     // Base instructions
     String base =
-        "You're helping a user create a list of 5 **very small, actionable** goals for a track titled '$trackTitle'.\n"
-        "Each goal should represent the **smallest possible task** a user can complete in one sitting — something that would take 5–20 minutes.\n"
+        "You're helping a user create a list of 5 **small, actionable** goals for a track titled '$trackTitle'.\n"
+        "Each goal should represent the **smallest possible task** a user can complete in one sitting — something that would take a couple hours at most.\n"
         "Avoid broad or multi-step goals. Break down bigger ideas into their simplest parts.\n"
         "Each goal must be short, specific, and written as a heading — no descriptions.\n"
         "Respond with only a bullet list of 5 goals. No extra text.";
