@@ -89,19 +89,24 @@ class _AISectionCollapsedState extends State<AISectionCollapsed> {
         Navigator.pop(context); // Close loading dialog
         _showFallbackDialog("No internet connection.");
       }
+    } on GeminiApiException catch (e) {
+      if (mounted) {
+        Navigator.pop(context);
+        _showFallbackDialog(e.userMessage);
+      }
     } on GenerativeAIException catch (e) {
       if (mounted) {
         Navigator.pop(context);
         if (e.message.contains('503')) {
           _showFallbackDialog("The AI is overloaded. Please try again later.");
         } else {
-          _showFallbackDialog("AI generation failed: ${e.message}");
+          _showFallbackDialog("AI generation failed. Please try again.");
         }
       }
     } catch (e) {
       if (mounted) {
         Navigator.pop(context);
-        _showFallbackDialog("Something went wrong: $e");
+        _showFallbackDialog("Something went wrong. Please try again.");
       }
     }
 

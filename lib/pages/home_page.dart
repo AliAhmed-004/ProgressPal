@@ -957,6 +957,9 @@ class _HomePageState extends State<HomePage> {
           content: Text("No internet connection. Please check your Wi-Fi."),
         ),
       );
+    } on GeminiApiException catch (e) {
+      Navigator.pop(context); // Close loading dialog
+      _showError(e.userMessage);
     } on GenerativeAIException catch (e) {
       Navigator.pop(context); // Close loading dialog
       if (e.message.contains('503')) {
@@ -964,13 +967,13 @@ class _HomePageState extends State<HomePage> {
           "The AI model is currently overloaded. Please try again in a few moments.",
         );
       } else {
-        _showError("AI generation failed: ${e.message}");
+        _showError("AI generation failed. Please try again.");
       }
     } catch (e) {
       Navigator.pop(context); // Close loading dialog
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text("Failed to generate goals: $e")));
+      ).showSnackBar(const SnackBar(content: Text("Failed to generate goals. Please try again.")));
     }
   }
 
