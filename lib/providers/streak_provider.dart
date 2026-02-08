@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:home_widget/home_widget.dart';
 import 'package:progresspal/models/streak_model.dart';
 import 'package:timezone/timezone.dart' as tz;
 
@@ -48,6 +51,7 @@ class StreakProvider extends ChangeNotifier {
     }
 
     notifyListeners(); // Notify UI about changes
+    unawaited(_updateHomeWidget());
   }
 
   void updateStreak(Goal completedGoal) {
@@ -121,6 +125,8 @@ class StreakProvider extends ChangeNotifier {
         scheduledDate: scheduledDate,
       );
     }
+
+    unawaited(_updateHomeWidget());
   }
 
   // Unmark a goal as completed
@@ -144,10 +150,13 @@ class StreakProvider extends ChangeNotifier {
         }
       }
     }
+
+    unawaited(_updateHomeWidget());
   }
 
   void saveStreak() {
     _streak.save();
+    unawaited(_updateHomeWidget());
   }
 
   void decrementStreak() {
@@ -239,5 +248,26 @@ class StreakProvider extends ChangeNotifier {
     final allGoalsTodayTitles = goalsToday.map((g) => g.title).toSet();
     return allGoalsTodayTitles.difference(goalsBeingDeletedTitles).isEmpty &&
            goalsBeingDeletedTitles.isNotEmpty;
+  }
+
+  Future<void> _updateHomeWidget() async {
+    final now = DateTime.now();
+    final weekStart = now.subtract(Duration(days: now.weekday - 1));
+    final completedDates = _streak.completedDates;
+    final weekData = List.generate(7, (index) {
+      final day = weekStart.add(Duration(days: index));
+      final normalized = DateTime(day.year, day.month, day.day);
+      return completedDates.containsKey(normalized);
+    });
+
+    await HomeWidget.saveWidgetData<int>(
+      'currentStreak',
+      _streak.currentStreak,
+    );
+    await HomeWidget.saveWidgetData<String>(
+      'weekData',
+      weekData.map((value) => value ? '1' : '0').join(),
+    );
+    await HomeWidget.updateWidget(name: 'ProgressPalWidgetProvider');
   }
 }
