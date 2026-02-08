@@ -59,6 +59,10 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await HiveDatabase().initHive();
 
+  // Initialize AdMob before runApp to ensure it's ready when needed
+  debugPrint('[INIT SERVICES] Initializing AdMob...');
+  await MobileAds.instance.initialize();
+
   runApp(
     ChangeNotifierProvider(
       create: (_) => ThemeProvider(),
@@ -72,19 +76,20 @@ void main() async {
 
 Future<void> _initializeServicesInBackground() async {
   // Request notification permissions
+  debugPrint('[INIT SERVICES] Requesting notification permissions...');
   await NotiService().requestPermissions();
 
   // Init local notifications
+  debugPrint('[INIT SERVICES] Initializing local notifications...');
   NotiService().initNotification();
 
   // Set background FCM handler
+  debugPrint('[INIT SERVICES] Setting background FCM handler...');
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   // Init Firebase notifications (e.g., topics, foreground handlers)
+  debugPrint('[INIT SERVICES] Initializing Firebase notifications...');
   await FirebaseService().initNotifications();
-
-  // Initialize AdMob (deferred for speed)
-  await MobileAds.instance.initialize();
 }
 
 class ProgressPal extends StatefulWidget {

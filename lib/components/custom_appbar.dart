@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:progresspal/providers/streak_provider.dart';
+import 'package:progresspal/services/celebration_service.dart';
 import 'package:provider/provider.dart';
 
 import '../pages/settings_page.dart';
@@ -20,7 +21,7 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
           ),
 
           actions: [
-            // Streak Display
+            // Streak Display with Celebration
             Consumer<StreakProvider>(
               builder: (context, streakProvider, child) {
                 final streak = streakProvider.streak;
@@ -29,14 +30,16 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: Row(
                     children: [
-                      Text(
-                        '🔥 ${streak.currentStreak}',
-                        style: TextStyle(fontSize: 16),
+                      StreakCelebrationWidget(
+                        child: Text(
+                          '🔥 ${streak.currentStreak}',
+                          style: const TextStyle(fontSize: 16),
+                        ),
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Text(
                         '🏆 ${streak.highestStreak}',
-                        style: TextStyle(fontSize: 16),
+                        style: const TextStyle(fontSize: 16),
                       ),
                     ],
                   ),
@@ -46,7 +49,7 @@ class CustomAppbar extends StatelessWidget implements PreferredSizeWidget {
 
             // Settings Icon
             IconButton(
-              icon: Icon(Icons.settings),
+              icon: const Icon(Icons.settings),
               onPressed: () {
                 Navigator.push(
                   context,
