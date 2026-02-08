@@ -10,6 +10,7 @@ import 'package:progresspal/components/generated_goals_dialog.dart';
 import 'package:progresspal/gemini/gemini_helper.dart';
 import 'package:progresspal/models/track_entry.dart';
 import 'package:progresspal/pages/insights_page.dart';
+import '../services/ad_service.dart';
 import 'package:progresspal/pages/pomodoro_page.dart';
 import 'package:progresspal/providers/streak_provider.dart';
 import 'package:progresspal/providers/track_provider.dart';
@@ -26,40 +27,39 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   BannerAd? _bannerAd;
-  // bool _isAdLoaded = false;
+  bool _isAdLoaded = false;
   int? _draggingIndex;
 
   @override
   void initState() {
     super.initState();
-    // _loadBannerAd();
+    _loadBannerAd();
     _scheduleReminders();
   }
 
   // Load the banner ad
-  // void _loadBannerAd() {
-  //   _bannerAd = BannerAd(
-  //     adUnitId: "ca-app-pub-3940256099942544/6300978111", // Test banner ad ID
-  //     // AdService.bannerAdUnitId,
-  //     size: AdSize.banner,
-  //     request: AdRequest(),
-  //     listener: BannerAdListener(
-  //       onAdLoaded: (ad) {
-  //         print("Ad Loaded!");
-  //         setState(() {
-  //           _isAdLoaded = true; // Set the ad loaded state
-  //         });
-  //       },
-  //       onAdFailedToLoad: (ad, error) {
-  //         print("Failed to load ad: ${error.code} - ${error.message}");
-  //         ad.dispose();
-  //         setState(() {
-  //           _isAdLoaded = false; // Set the ad loaded state to false
-  //         });
-  //       },
-  //     ),
-  //   )..load();
-  // }
+  void _loadBannerAd() {
+    _bannerAd = BannerAd(
+      adUnitId: AdService.bannerAdUnitId,
+      size: AdSize.banner,
+      request: AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          print("Ad Loaded!");
+          setState(() {
+            _isAdLoaded = true; // Set the ad loaded state
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          print("Failed to load ad: \\${error.code} - \\${error.message}");
+          ad.dispose();
+          setState(() {
+            _isAdLoaded = false; // Set the ad loaded state to false
+          });
+        },
+      ),
+    )..load();
+  }
 
   // check and schedule the reminders
   void _scheduleReminders() {
@@ -142,7 +142,7 @@ class _HomePageState extends State<HomePage> {
 
             buildGoalsList(selectedTrack, trackProvider, streakProvider),
 
-            // if (_isAdLoaded) buildAdWidget(),
+            if (_isAdLoaded) buildAdWidget(),
           ],
         ),
       ),
