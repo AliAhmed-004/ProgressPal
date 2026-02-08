@@ -23,7 +23,7 @@ class ProgressPalWidgetProvider : AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetId: Int
     ) {
-        val prefs = context.getSharedPreferences("HomeWidget", Context.MODE_PRIVATE)
+        val prefs = context.getSharedPreferences("HomeWidgetPreferences", Context.MODE_PRIVATE)
         val streak = prefs.getInt("currentStreak", 0)
         val weekData = prefs.getString("weekData", "0000000") ?: "0000000"
 
