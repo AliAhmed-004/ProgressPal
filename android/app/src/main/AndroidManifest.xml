@@ -25,6 +25,17 @@
         <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"  
             android:exported="true"/>  
 
+        <receiver
+            android:name=".ProgressPalWidgetProvider"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/progresspal_widget_info"/>
+        </receiver>
+
         <!-- Your activity -->
         <activity
             android:name=".MainActivity"
@@ -73,4 +84,3 @@
         </intent>
     </queries>
 </manifest>
-
