@@ -35,7 +35,7 @@
                 android:text="M"
                 android:textColor="#475467"
                 android:textSize="12sp" />
-            <View
+            <ImageView
                 android:id="@+id/widget_day_dot_0"
                 android:layout_width="10dp"
                 android:layout_height="10dp"
@@ -55,7 +55,7 @@
                 android:text="T"
                 android:textColor="#475467"
                 android:textSize="12sp" />
-            <View
+            <ImageView
                 android:id="@+id/widget_day_dot_1"
                 android:layout_width="10dp"
                 android:layout_height="10dp"
@@ -75,7 +75,7 @@
                 android:text="W"
                 android:textColor="#475467"
                 android:textSize="12sp" />
-            <View
+            <ImageView
                 android:id="@+id/widget_day_dot_2"
                 android:layout_width="10dp"
                 android:layout_height="10dp"
@@ -95,7 +95,7 @@
                 android:text="T"
                 android:textColor="#475467"
                 android:textSize="12sp" />
-            <View
+            <ImageView
                 android:id="@+id/widget_day_dot_3"
                 android:layout_width="10dp"
                 android:layout_height="10dp"
@@ -115,7 +115,7 @@
                 android:text="F"
                 android:textColor="#475467"
                 android:textSize="12sp" />
-            <View
+            <ImageView
                 android:id="@+id/widget_day_dot_4"
                 android:layout_width="10dp"
                 android:layout_height="10dp"
@@ -135,7 +135,7 @@
                 android:text="S"
                 android:textColor="#475467"
                 android:textSize="12sp" />
-            <View
+            <ImageView
                 android:id="@+id/widget_day_dot_5"
                 android:layout_width="10dp"
                 android:layout_height="10dp"
@@ -155,7 +155,7 @@
                 android:text="S"
                 android:textColor="#475467"
                 android:textSize="12sp" />
-            <View
+            <ImageView
                 android:id="@+id/widget_day_dot_6"
                 android:layout_width="10dp"
                 android:layout_height="10dp"
