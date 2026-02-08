@@ -55,6 +55,7 @@ dependencies:
   path_provider: ^2.1.5
   home_widget: ^0.6.0
   collection:
+  confetti: ^0.8.0
 
 dev_dependencies:
   flutter_test:

@@ -252,12 +252,7 @@ class StreakProvider extends ChangeNotifier {
 
   Future<void> _updateHomeWidget() async {
     final now = DateTime.now();
-    final weekStart = now.subtract(Duration(days: now.weekday % 7));
-    final today = DateTime(now.year, now.month, now.day);
-    final lastUpdated = _streak.lastUpdated;
-    final updatedToday =
-        lastUpdated != null &&
-        DateTime(lastUpdated.year, lastUpdated.month, lastUpdated.day) == today;
+    final weekStart = now.subtract(Duration(days: now.weekday - 1));
     final completedDates = _streak.completedDates;
     final weekData = List.generate(7, (index) {
       final day = weekStart.add(Duration(days: index));
@@ -269,11 +264,6 @@ class StreakProvider extends ChangeNotifier {
       'currentStreak',
       _streak.currentStreak,
     );
-    await HomeWidget.saveWidgetData<int>(
-      'highestStreak',
-      _streak.highestStreak,
-    );
-    await HomeWidget.saveWidgetData<bool>('updatedToday', updatedToday);
     await HomeWidget.saveWidgetData<String>(
       'weekData',
       weekData.map((value) => value ? '1' : '0').join(),
