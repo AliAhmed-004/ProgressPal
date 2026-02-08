@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
@@ -40,21 +41,26 @@ class _HomePageState extends State<HomePage> {
   // Load the banner ad
   void _loadBannerAd() {
     _bannerAd = BannerAd(
-      adUnitId: AdService.bannerAdUnitId,
+      adUnitId:
+          "ca-app-pub-3940256099942544/6300978111", // TODO: Test ad unit ID
+      // adUnitId: AdService.bannerAdUnitId,
       size: AdSize.banner,
       request: AdRequest(),
       listener: BannerAdListener(
         onAdLoaded: (ad) {
-          print("Ad Loaded!");
+          debugPrint("[BANNER AD] Ad Loaded!");
           setState(() {
-            _isAdLoaded = true; // Set the ad loaded state
+            _isAdLoaded = true;
           });
         },
         onAdFailedToLoad: (ad, error) {
-          print("Failed to load ad: \\${error.code} - \\${error.message}");
+          debugPrint("[BANNER AD] Failed to load: $error");
+          debugPrint("[BANNER AD] Retrying in 10 seconds...");
           ad.dispose();
-          setState(() {
-            _isAdLoaded = false; // Set the ad loaded state to false
+          _bannerAd = null;
+
+          Timer(Duration(seconds: 10), () {
+            _loadBannerAd();
           });
         },
       ),
@@ -73,8 +79,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
-    super.dispose();
     _bannerAd?.dispose(); // Dispose of the ad when the widget is disposed
+    super.dispose();
   }
 
   @override
@@ -142,10 +148,17 @@ class _HomePageState extends State<HomePage> {
 
             buildGoalsList(selectedTrack, trackProvider, streakProvider),
 
-            if (_isAdLoaded) buildAdWidget(),
+            // if (_isAdLoaded) buildAdWidget(),
           ],
         ),
       ),
+      bottomNavigationBar:
+          _isAdLoaded
+              ? SizedBox(
+                height: _bannerAd!.size.height.toDouble(),
+                child: AdWidget(ad: _bannerAd!),
+              )
+              : null,
     );
   }
 
@@ -971,9 +984,11 @@ class _HomePageState extends State<HomePage> {
       }
     } catch (e) {
       Navigator.pop(context); // Close loading dialog
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Failed to generate goals. Please try again.")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Failed to generate goals. Please try again."),
+        ),
+      );
     }
   }
 
