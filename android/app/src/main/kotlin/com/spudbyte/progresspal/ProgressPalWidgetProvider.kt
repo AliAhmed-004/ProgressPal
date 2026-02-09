@@ -25,7 +25,7 @@ class ProgressPalWidgetProvider : AppWidgetProvider() {
     ) {
         val prefs = context.getSharedPreferences("HomeWidgetPreferences", Context.MODE_PRIVATE)
         val currentStreak = prefs.getInt("currentStreak", 0)
-        val highestStreak = prefs.getInt("highrstStreak", 0)
+        val highestStreak = prefs.getInt("highestStreak", 0)
         val weekData = prefs.getString("weekData", "0000000") ?: "0000000"
         val isCompletedToday = prefs.getBoolean("isCompletedToday", false)
 
