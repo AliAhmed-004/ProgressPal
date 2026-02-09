@@ -7,10 +7,28 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/widget_streak_text"
+        android:id="@+id/widget_current_streak_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Current Streak: 0"
+        android:textColor="#101828"
+        android:textSize="16sp"
+        android:textStyle="normal" />
+
+    <TextView
+        android:id="@+id/widget_highest_streak_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Highest Streak: 0"
+        android:textColor="#101828"
+        android:textSize="16sp"
+        android:textStyle="normal" />
+
+    <TextView
+        android:id="@+id/widget_message_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Your Streak is pending!"
         android:textColor="#101828"
         android:textSize="16sp"
         android:textStyle="bold" />
@@ -29,18 +47,21 @@
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="vertical">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="M"
-                android:textColor="#475467"
-                android:textSize="12sp" />
+
             <ImageView
                 android:id="@+id/widget_day_dot_0"
-                android:layout_width="10dp"
-                android:layout_height="10dp"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
                 android:layout_marginTop="4dp"
                 android:background="@drawable/widget_day_inactive" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sun"
+                android:textColor="#F4F4F4"
+                android:textSize="12sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
@@ -49,18 +70,20 @@
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="vertical">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="T"
-                android:textColor="#475467"
-                android:textSize="12sp" />
             <ImageView
                 android:id="@+id/widget_day_dot_1"
-                android:layout_width="10dp"
-                android:layout_height="10dp"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
                 android:layout_marginTop="4dp"
                 android:background="@drawable/widget_day_inactive" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mon"
+                android:textColor="#F4F4F4"
+                android:textSize="12sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
@@ -69,18 +92,20 @@
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="vertical">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="W"
-                android:textColor="#475467"
-                android:textSize="12sp" />
             <ImageView
                 android:id="@+id/widget_day_dot_2"
-                android:layout_width="10dp"
-                android:layout_height="10dp"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
                 android:layout_marginTop="4dp"
                 android:background="@drawable/widget_day_inactive" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tue"
+                android:textColor="#F4F4F4"
+                android:textSize="12sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
@@ -89,18 +114,20 @@
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="vertical">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="T"
-                android:textColor="#475467"
-                android:textSize="12sp" />
             <ImageView
                 android:id="@+id/widget_day_dot_3"
-                android:layout_width="10dp"
-                android:layout_height="10dp"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
                 android:layout_marginTop="4dp"
                 android:background="@drawable/widget_day_inactive" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Wed"
+                android:textColor="#F4F4F4"
+                android:textSize="12sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
@@ -109,18 +136,20 @@
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="vertical">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="F"
-                android:textColor="#475467"
-                android:textSize="12sp" />
             <ImageView
                 android:id="@+id/widget_day_dot_4"
-                android:layout_width="10dp"
-                android:layout_height="10dp"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
                 android:layout_marginTop="4dp"
                 android:background="@drawable/widget_day_inactive" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Thr"
+                android:textColor="#F4F4F4"
+                android:textSize="12sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
@@ -129,18 +158,20 @@
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="vertical">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="S"
-                android:textColor="#475467"
-                android:textSize="12sp" />
             <ImageView
                 android:id="@+id/widget_day_dot_5"
-                android:layout_width="10dp"
-                android:layout_height="10dp"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
                 android:layout_marginTop="4dp"
                 android:background="@drawable/widget_day_inactive" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Fri"
+                android:textColor="#F4F4F4"
+                android:textSize="12sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
@@ -149,18 +180,20 @@
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="vertical">
+            <ImageView
+                android:id="@+id/widget_day_dot_6"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/widget_day_inactive" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="S"
-                android:textColor="#475467"
-                android:textSize="12sp" />
-            <ImageView
-                android:id="@+id/widget_day_dot_6"
-                android:layout_width="10dp"
-                android:layout_height="10dp"
-                android:layout_marginTop="4dp"
-                android:background="@drawable/widget_day_inactive" />
+                android:text="Sat"
+                android:textColor="#F4F4F4"
+                android:textSize="12sp"
+                android:textStyle="bold" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

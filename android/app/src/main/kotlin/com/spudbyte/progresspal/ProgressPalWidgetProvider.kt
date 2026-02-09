@@ -24,11 +24,18 @@ class ProgressPalWidgetProvider : AppWidgetProvider() {
         appWidgetId: Int
     ) {
         val prefs = context.getSharedPreferences("HomeWidgetPreferences", Context.MODE_PRIVATE)
-        val streak = prefs.getInt("currentStreak", 0)
+        val currentStreak = prefs.getInt("currentStreak", 0)
+        val highestStreak = prefs.getInt("highrstStreak", 0)
         val weekData = prefs.getString("weekData", "0000000") ?: "0000000"
+        val isCompletedToday = prefs.getBoolean("isCompletedToday", false)
+
+
+
 
         val views = RemoteViews(context.packageName, R.layout.progresspal_widget)
-        views.setTextViewText(R.id.widget_streak_text, "Current Streak: $streak")
+        views.setTextViewText(R.id.widget_current_streak_text, "Current Streak: $currentStreak")
+        views.setTextViewText(R.id.widget_highest_streak_text, "Highest Streak: $highestStreak")
+        views.setTextViewText(R.id.widget_message_text, if(isCompletedToday) "Well Done with the Streak!" else "Don't give up now!")
 
         val dotIds = listOf(
             R.id.widget_day_dot_0,
@@ -42,15 +49,13 @@ class ProgressPalWidgetProvider : AppWidgetProvider() {
 
         dotIds.forEachIndexed { index, viewId ->
             val isComplete = weekData.getOrNull(index) == '1'
-            views.setInt(
-                viewId,
-                "setBackgroundResource",
-                if (isComplete) {
+            views.setImageViewResource(viewId,
+                if (weekData[index] == '1')
                     R.drawable.widget_day_active
-                } else {
+                else
                     R.drawable.widget_day_inactive
-                }
             )
+
         }
 
         val intent = Intent(context, MainActivity::class.java)

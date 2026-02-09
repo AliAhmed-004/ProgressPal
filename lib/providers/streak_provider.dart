@@ -264,10 +264,22 @@ class StreakProvider extends ChangeNotifier {
       'currentStreak',
       _streak.currentStreak,
     );
+
+    await HomeWidget.saveWidgetData<int>(
+      'highestStreak',
+      _streak.highestStreak,
+    );
+
     await HomeWidget.saveWidgetData<String>(
       'weekData',
       weekData.map((value) => value ? '1' : '0').join(),
     );
+
+    await HomeWidget.saveWidgetData<bool>(
+      'isCompletedToday',
+      hasCompletedGoalsToday(),
+    );
+
     await HomeWidget.updateWidget(name: 'ProgressPalWidgetProvider');
   }
 }
