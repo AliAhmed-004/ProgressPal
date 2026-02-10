@@ -72,7 +72,7 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
   // ---------------- COMPLETION ----------------
 
   void _onTimerComplete() async {
-    if (await Vibration.hasVibrator() ?? false) {
+    if (await Vibration.hasVibrator()) {
       Vibration.vibrate(pattern: [500, 1000], repeat: 0);
     }
 

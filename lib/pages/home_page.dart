@@ -11,10 +11,10 @@ import 'package:progresspal/components/generated_goals_dialog.dart';
 import 'package:progresspal/gemini/gemini_helper.dart';
 import 'package:progresspal/models/track_entry.dart';
 import 'package:progresspal/pages/insights_page.dart';
-import '../services/ad_service.dart';
 import 'package:progresspal/pages/pomodoro_page.dart';
 import 'package:progresspal/providers/streak_provider.dart';
 import 'package:progresspal/providers/track_provider.dart';
+import 'package:progresspal/services/ad_service.dart';
 import 'package:provider/provider.dart';
 
 import '../components/generate_goals_button.dart';
@@ -41,9 +41,7 @@ class _HomePageState extends State<HomePage> {
   // Load the banner ad
   void _loadBannerAd() {
     _bannerAd = BannerAd(
-      adUnitId:
-          "ca-app-pub-3940256099942544/6300978111", // TODO: Test ad unit ID
-      // adUnitId: AdService.bannerAdUnitId,
+      adUnitId: AdService.bannerAdUnitId,
       size: AdSize.banner,
       request: AdRequest(),
       listener: BannerAdListener(
