@@ -6,7 +6,7 @@
     "configurations": [
     
         {
-            "name": "ProgressPal",
+            "name": "ProgressPal (debug mode)",
             "request": "launch",
             "type": "dart"
         },
