@@ -35,7 +35,7 @@ class ProgressPalWidgetProvider : AppWidgetProvider() {
         val views = RemoteViews(context.packageName, R.layout.progresspal_widget)
         views.setTextViewText(R.id.widget_current_streak_text, "Current Streak: $currentStreak")
         views.setTextViewText(R.id.widget_highest_streak_text, "Highest Streak: $highestStreak")
-        views.setTextViewText(R.id.widget_message_text, if(isCompletedToday) "Well Done with the Streak!" else "Don't give up now!")
+        views.setTextViewText(R.id.widget_message_text, if(isCompletedToday) "Well Done!" else "Don't give up now!")
 
         val dotIds = listOf(
             R.id.widget_day_dot_0,

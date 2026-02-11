@@ -6,32 +6,63 @@
     android:background="@drawable/progresspal_widget_background"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/widget_current_streak_text"
-        android:layout_width="wrap_content"
+    <!-- ===================== -->
+    <!-- Row 1: Text + Logo     -->
+    <!-- ===================== -->
+    <LinearLayout
+        android:id="@+id/top_row"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Current Streak: 0"
-        android:textColor="#101828"
-        android:textSize="20sp"
-        android:textStyle="normal" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
 
-    <TextView
-        android:id="@+id/widget_highest_streak_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Highest Streak: 0"
-        android:textColor="#101828"
-        android:textSize="20sp"
-        android:textStyle="normal" />
+        <!-- Left Column: Texts -->
+        <LinearLayout
+            android:id="@+id/text_column"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/widget_message_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Your Streak is pending!"
-        android:textColor="#101828"
-        android:textSize="24sp"
-        android:textStyle="bold" />
+            <TextView
+                android:id="@+id/widget_current_streak_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Current Streak: 10"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:textStyle="normal" />
+
+            <TextView
+                android:id="@+id/widget_highest_streak_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Highest Streak: 15"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:layout_marginTop="4dp"
+                android:textStyle="normal" />
+
+            <TextView
+                android:id="@+id/widget_message_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Don't lose your streak!"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:layout_marginTop="12dp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Right: Logo -->
+        <ImageView
+            android:id="@+id/widget_logo"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/notification_icon"
+            android:layout_marginStart="12dp" />
+    </LinearLayout>
+
 
     <LinearLayout
         android:id="@+id/widget_week_row"
@@ -58,7 +89,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Sun"
+                android:text="Mon"
                 android:textColor="#F4F4F4"
                 android:textSize="12sp"
                 android:textStyle="bold" />
@@ -80,7 +111,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Mon"
+                android:text="Tue"
                 android:textColor="#F4F4F4"
                 android:textSize="12sp"
                 android:textStyle="bold" />
@@ -102,7 +133,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tue"
+                android:text="Wed"
                 android:textColor="#F4F4F4"
                 android:textSize="12sp"
                 android:textStyle="bold" />
@@ -124,7 +155,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Wed"
+                android:text="Thr"
                 android:textColor="#F4F4F4"
                 android:textSize="12sp"
                 android:textStyle="bold" />
@@ -146,7 +177,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Thr"
+                android:text="Fri"
                 android:textColor="#F4F4F4"
                 android:textSize="12sp"
                 android:textStyle="bold" />
@@ -168,7 +199,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Fri"
+                android:text="Sat"
                 android:textColor="#F4F4F4"
                 android:textSize="12sp"
                 android:textStyle="bold" />
@@ -190,7 +221,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Sat"
+                android:text="Sun"
                 android:textColor="#F4F4F4"
                 android:textSize="12sp"
                 android:textStyle="bold" />
