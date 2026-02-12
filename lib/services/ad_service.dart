@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class AdService {
   static String get bannerAdUnitId {
@@ -13,5 +14,16 @@ class AdService {
     } else {
       throw UnsupportedError("Error: Unsupported Platform");
     }
+  }
+
+  // Set up family-safe ad configuration
+  static void setupFamilySafeAds() {
+    MobileAds.instance.updateRequestConfiguration(
+      RequestConfiguration(
+        maxAdContentRating: MaxAdContentRating.t,
+        tagForChildDirectedTreatment: TagForChildDirectedTreatment.yes,
+        tagForUnderAgeOfConsent: TagForUnderAgeOfConsent.yes,
+      ),
+    );
   }
 }

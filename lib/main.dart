@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:progresspal/services/ad_service.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -62,6 +63,8 @@ void main() async {
   // Initialize AdMob before runApp to ensure it's ready when needed
   debugPrint('[INIT SERVICES] Initializing AdMob...');
   await MobileAds.instance.initialize();
+
+  AdService.setupFamilySafeAds();
 
   runApp(
     ChangeNotifierProvider(
