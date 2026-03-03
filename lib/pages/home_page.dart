@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'dart:async';
 
@@ -46,14 +47,14 @@ class _HomePageState extends State<HomePage> {
       request: AdRequest(),
       listener: BannerAdListener(
         onAdLoaded: (ad) {
-          debugPrint("[BANNER AD] Ad Loaded!");
+          log("[BANNER AD] Ad Loaded!");
           setState(() {
             _isAdLoaded = true;
           });
         },
         onAdFailedToLoad: (ad, error) {
-          debugPrint("[BANNER AD] Failed to load: $error");
-          debugPrint("[BANNER AD] Retrying in 10 seconds...");
+          log("[BANNER AD] Failed to load: $error");
+          log("[BANNER AD] Retrying in 10 seconds...");
           ad.dispose();
           _bannerAd = null;
 

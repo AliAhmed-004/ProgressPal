@@ -64,7 +64,7 @@ void main() async {
   debugPrint('[INIT SERVICES] Initializing AdMob...');
   await MobileAds.instance.initialize();
 
-  AdService.setupFamilySafeAds();
+  AdService.setupAds();
 
   runApp(
     ChangeNotifierProvider(

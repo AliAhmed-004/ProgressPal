@@ -17,11 +17,15 @@ class AdService {
   }
 
   // Set up family-safe ad configuration
-  static void setupFamilySafeAds() {
+  static void setupAds() {
     MobileAds.instance.updateRequestConfiguration(
       RequestConfiguration(
         maxAdContentRating: MaxAdContentRating.t,
-        tagForChildDirectedTreatment: TagForChildDirectedTreatment.yes,
+
+        // NOT a kids app
+        tagForChildDirectedTreatment: TagForChildDirectedTreatment.no,
+
+        // Optional: keep yes for GDPR safety
         tagForUnderAgeOfConsent: TagForUnderAgeOfConsent.yes,
       ),
     );
