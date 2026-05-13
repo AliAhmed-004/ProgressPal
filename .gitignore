@@ -44,12 +44,32 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# API key
+# Sensitive Configuration & Secrets
 lib/secrets/secrets.dart
+lib/config/api_keys.dart
+lib/config/admob_config.dart
+.env
+.env.local
+.env.*.local
 
-# Keystore file
+# Firebase Configuration (regenerate from Firebase Console)
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+ios/Runner/Secrets.swift
+
+# Android Keystore & Signing
 /android/app/my-release-key.jks
 /android/key.properties
 upload_certificate.pem
 android/app/progresspal-upload_certificate.pem
+*.keystore
+*.jks
+
+# IDE & Editor specific
+.vscode/workspace.xml
+.idea/workspace.xml
+.idea/shelf/
+
+# OS & Temporary
 FUTURE_FEATURE_PLAN.md
+*.tmp
