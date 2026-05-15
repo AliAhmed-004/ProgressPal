@@ -8,12 +8,19 @@
 >
 > ProgressPal is a cross-platform learning companion that combines deliberate practice with reflective learning. Unlike traditional to-do apps, ProgressPal requires you to articulate what you've learned before completing a goal—turning passive task-checking into active knowledge retention.
 
+## 📱 Screenshots
+
+| | | |
+|---|---|---|
+| ![Add Goal](assets/screenshots/add_goal.jpg) | ![Generated Goals](assets/screenshots/generated_goals.jpg) | ![Generating Goals](assets/screenshots/generating_goals.jpg) |
+| ![Homepage](assets/screenshots/homepage.jpg) | ![Insights](assets/screenshots/insights.jpg) | ![Pomodoro](assets/screenshots/pomodoro.jpg) |
+| ![Settings](assets/screenshots/settings.jpg) | ![Share Insights](assets/screenshots/share_insights.jpg) | |
+
 ## 📚 Table of Contents
 
 - [The Problem](#-the-problem)
 - [The Solution](#-the-solution)
 - [Key Features](#-key-features)
-- [Screenshots](#-screenshots)
 - [Tech Stack](#-tech-stack)
 - [Project Structure](#-project-structure)
 - [Getting Started](#-getting-started)
@@ -89,11 +96,6 @@ Built-in focus timer for deep work:
 - No accounts or sign-ups required
 - Zero tracking or analytics
 - No cloud dependencies
-
-## 📱 Screenshots
-
-*Coming soon — [screenshots showing the app interface]*
-
 ## 🛠️ Tech Stack
 
 | Component | Technology |
